@@ -40,7 +40,7 @@ Then, create the tolls and the random re-entrant cars.
 
 Clean the generated tolls to match the tuples present in the position reports.
 
-> datafixtype3.v.1.0.2.py _directory_for_output_/my.data.out _directory_for_output_/my.tolls.out _directory_for_output_/my.tolls.clean
+> datafixtype3.py _directory_for_output_/my.data.out _directory_for_output_/my.tolls.out _directory_for_output_/my.tolls.clean
 
 
 
