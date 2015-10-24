@@ -4,7 +4,7 @@ Walmart version of the Linear Road streaming benchmark.
 ## Overview
 LinearRoad is a streaming data management system (SDMS) benchmark originally created in 2004.
 It was created at a time when SDMS systems were relatively new.
-The original Linear Road benchmark paper was a joint effort between collaborators from Stanford University, Brandeis University, Massachusetts Institute of Technology, and Oregon Health and Science University/Oregon Graduate Institute.  And it has since been endorsed by Stanford, Brandeis, MIT, and Brown Universities as an SDMS benchmark.
+The original Linear Road benchmark paper was a joint effort between collaborators from Stanford University, Brandeis University, Massachusetts Institute of Technology, and the Oregon Health and Science University/Oregon Graduate Institute.  And it has since been endorsed by Stanford, Brandeis, MIT, and Brown Universities as an SDMS benchmark.
 
 All original files were downloaded from http://www.cs.brandeis.edu/~linearroad/tools.html.
 These original files were then modified or re-written for performance reasons, including the creation of arbitrarily large datasets in a reasonable amount of time.
