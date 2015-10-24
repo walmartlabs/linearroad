@@ -22,10 +22,11 @@ maxqid = 0
 filecount = 0
 for file in files:
         f = open(dirpath+"/"+file)
-        # Find current max carid and qid for this file
 
+        # Find current max carid and qid for this file
         curmaxcarid = 0
         curmaxqid = 0
+
         for line in f:
                 t = line.strip().split(",")
 
@@ -48,15 +49,8 @@ for file in files:
 
                 outfile.write(",".join(t)+"\n")
 
-        print "curmaxcarid: " + str(curmaxcarid)
-        print "curmaxqid: " + str(curmaxqid)
-        print "maxcarid: " + str(maxcarid)
-        print "maxqid: " + str(maxqid)
-        print "---"
         maxcarid += curmaxcarid+1
         maxqid += curmaxqid+1
-        print "maxcarid: " + str(maxcarid)
-        print "maxqid: " + str(maxqid)
 
         f.close()
         filecount += 1
