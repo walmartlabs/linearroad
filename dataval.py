@@ -2,20 +2,19 @@ import sys, time
 
 # dataval.py: with a raw mitsim file perform the following:
 #  check for position reports that are not 30 secs apart, and simply report
-#  ensure each car has lanes 0 and 4
-#  discard any singles
+#  ensure car does not reappear after exiting
+#  remove negative positions and segments
+#  remove type 3 queries with a  day of '0' if any
 
-# Usage: dataval.py <input_file> <good_file>
+# Usage: dataval.py <raw_file> <cleaner_file>
 
 f = open(sys.argv[1])
 w = open(sys.argv[2], 'w')
 print "Validating data file: " + sys.argv[1]
 
 # This is the map that will hold all carid's and the last line show
-reports = {}  # K: carid     V: line
 cars = {}  # K: carid     V: time
 exited = {}  # K: carid     V: time
-errors = {}
 st = time.time()
 
 for line in f:
@@ -34,14 +33,14 @@ for line in f:
 
         if type == '0':
                 if carid in exited:
-                        continue  # skip this row
+                        continue  # skip this row as it already exited
                 if carid not in cars:
                         cars[carid] = ctime
                 else:
                         # 30 sec incr?
                         if int(cars[carid]) != int(ctime)-30:
                                 print cars[carid] + " " + ctime
-                                print "Time error for car " + carid + " and time " + ctime
+                                print "Time error for car " + carid + " at time " + ctime
                         cars[carid] = ctime
                 if lane == '4': # put this car in the exited dict
                         exited[carid] = ctime
@@ -56,7 +55,6 @@ for line in f:
                         continue
 
         if not discard:
-                #w.write(line)
                 w.write(",".join(t)+"\n")
 
 print "Time to run dataval.py: " + str(time.time() - st)
