@@ -27,7 +27,7 @@ Install and set up the PostgreSQL database (these instructions may vary based on
 sudo yum -y install postgresql postgresql-server
 sudo service postgresql initdb
 sudo service postgresql start
-su postgres
+sudo su postgres
 psql
 psql> create user <linux username>;  # this should be the same username from which scripts will be run
 psql> alter role <linux username> with superuser login;
