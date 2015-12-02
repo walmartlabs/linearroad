@@ -18,7 +18,7 @@ Download the original tools and unpack into arbitrary directory:
 wget http://www.cs.brandeis.edu/~linearroad/files/mitsim.tar.gz
 mkdir MITSIMLab
 cd MITSIMLab
-tar xf ../mitsim.tar.gz`
+tar xf ../mitsim.tar.gz
 ```
 
 Install and set up the PostgreSQL database (these instructions may vary based on the version of PostgreSQL).  For version 8.4.0 that the default CentOS 6.5/6 repo in Azure installs:
