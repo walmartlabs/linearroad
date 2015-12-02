@@ -50,8 +50,9 @@ sudo yum install compat-libstdc++-296.i686
 ```
 You should now have PostgreSQL setup with an appropriate user and database along with the proper Perl modules.  To test database connectivity modify the included *test.pl* file to point to the new database connection: 
 ```
-DBI->connect("DBI:pgPP:dbname=test", "root", "")
+DBI->connect("DBI:PgPP:dbname=test", "root", "")
 ```
+and insert a `print $dbh;` statement to test for connectivity.  If something prints the connection should be good.
 
 ### Creating a single combined data file
 As stated in the README, datasets of arbitrary sizes can be generated on a single machine or by parallelizing the expressway generation on multiple machines.  But, after generation, these must be cleaned (if desired) and combined.  
