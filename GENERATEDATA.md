@@ -40,19 +40,42 @@ sudo yum -y install gcc make
 ```
 Install the appropriate Perl modules for the scripts to interact with postgresql.
 ```
-perl -MCPAN -e "install DBI"
-perl -MCPAN -e "install DBD::PgPP"
-perl -MCPAN -e "install Math::Random"
+sudo perl -MCPAN -e "install DBI"
+sudo perl -MCPAN -e "install DBD::PgPP"
+sudo perl -MCPAN -e "install Math::Random"
 ```
 Install the 32-bit compatibility pack:
 ```
-sudo yum install compat-libstdc++-296.i686
+sudo yum -y install compat-libstdc++-296.i686
 ```
 You should now have PostgreSQL setup with an appropriate user and database along with the proper Perl modules.  To test database connectivity modify the included *test.pl* file to point to the new database connection: 
 ```
 DBI->connect("DBI:PgPP:dbname=test", "root", "")
 ```
 and insert a `print $dbh;` statement after the connection statement to test for connectivity.  If something prints the connection should be good.
+
+### Running the script
+To kick off the data creation process you primarily edit two files:
+`mitsim.config` and `linear-road.pl`
+
+In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, `databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user, and select any number of expressways.
+
+In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour` increasing to 1000 and `my $endtime` setting to however long we want the simulation to run.
+
+To kick off the script `./run mitsim.config`.
+
+NOTE: all database tables must be manually dropped or cleared between runs.  The table is not automatically dropped because if file permissions are not right the data will still be found in the `input` table. 
+```
+psql -d test
+```
+
+Depending on the endtime and number of expressways chosen the program can run for hours, if not days or more.  Each 3 hour 1 expressway set can take ~3 hours to generate.
+
+The raw data is found under the `directoryforoutput` as `cardatapoints.out`N.  N being 0 .. `numberofexpressways`-1.
+
+The script `Duplicates.pl` can perform the process of combining the multiple raw data files but cannot handle in reasonable time a very large number of expressways.  The self-join query mentioned in the general introduction explains why (the progressive slowdown of self-join query that finds duplicates).  The `directoryforoutput` must also be readable and writeable by the user `postgres`.
+
+In lieu of `Duplicates.pl` the directions below can be followed to create arbitrarily large datasets with duplicates.
 
 ### Creating a single combined data file
 As stated in the README, datasets of arbitrary sizes can be generated on a single machine or by parallelizing the expressway generation on multiple machines.  But, after generation, these must be cleaned (if desired) and combined.  
