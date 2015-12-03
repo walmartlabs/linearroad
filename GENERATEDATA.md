@@ -68,8 +68,6 @@ $dbquery="UPDATE input SET carid=carstoreplace.carid FROM carstoreplace WHERE in
 ```
 Note that this is not necessary if all we're generating are the raw files for later processing.
 
-Also, 
-
 In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, `databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user, and select any number of expressways.
 
 NOTE: remove any trailing blank lines in `mitsim.config` to avoid `use of uninitialized value` errors.
