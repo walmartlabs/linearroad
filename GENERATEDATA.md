@@ -72,13 +72,13 @@ In `mitsim.config`: change the `directoryforoutput` to a directory of your choos
 
 NOTE: remove any trailing blank lines in `mitsim.config` to avoid `use of uninitialized value` errors.
 
-In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour` increasing to 1000 and `my $endtime` setting to however long we want the simulation to run.
+In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour`, increasing the value to 1000, and `my $endtime`, setting to however long we want the simulation to run.
 
 To kick off the script `./run mitsim.config`
 
 NOTE: if SELinux is present it may need to be disabled: `sudo setenforce 0`
 
-NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the final data can still be found in the `input` table even if it's not written out as `cardatapoints.out`.  `cardatapoints.outN` are the raw files.  `cardatapoints.out` is the final output after running duplications, or re-entrants, as we've called them.
+NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the final data can still be found in the `input` table even if it's not written out as `cardatapoints.out`.  `cardatapoints.outN` are the raw files.  `cardatapoints.out` is the final output after running duplications or re-entrants--as we've called them.
 
 To drop the database table `input`:
 ```
@@ -87,7 +87,7 @@ psql> drop table input;
 ```
 And also, remove the output files from the chosen output directory, moving any of the raw `cardatapoints.outN` files first if desired.
 
-Or, add the following lines to `DuplicateCars.pl` before the creation of table `input`:
+For convenience, add the following lines to `DuplicateCars.pl` before the statements that create the table `input`:
 ```
 writeToLog ( $logfile, $logvar, "Dropping input table.");
 $dbquery="DROP TABLE IF EXISTS input;";
@@ -95,7 +95,7 @@ $sth=$dbh->prepare("$dbquery") or die $DBI::errstr;
 $sth->execute;
 unlink glob $dir."/*";  # remove previous files from output directory
 ```
-Depending on the endtime and number of expressways chosen the program can run for hours, if not days or more.  Each 3 hour 1 expressway set can take ~3 hours to generate.
+Depending on the endtime and number of expressways chosen the program can run for hours, if not days or more.  Each 3 hour 1 expressway set can take ~3-5 hours to generate.
 
 The raw data is found under the `directoryforoutput` as N files named `cardatapoints.out`N.  N being 0 .. `numberofexpressways`-1.
 
