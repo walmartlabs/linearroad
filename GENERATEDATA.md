@@ -58,7 +58,7 @@ and insert a `print $dbh;` statement after the connection statement to test for 
 To start the data creation process you primarily edit two files:
 `mitsim.config` and `linear-road.pl`
 
-But, due to differences in PostgreSQL 8.4.0+ versus 7.x.x, the latter being the version used by this original code, line 197 of `DuplicateCars.pl` should be change from:
+Note that due to differences in PostgreSQL 8.4.0+ from 7.x.x, the latter being the version used by the original code, line 197 of `DuplicateCars.pl` should be changed from:
 ```
 $dbquery="UPDATE input SET carid=carstoreplace.carid WHERE carid=carstoreplace.cartoreplace;";
 ```
@@ -78,12 +78,16 @@ To kick off the script `./run mitsim.config`
 
 NOTE: if SELinux is present it may need to be disabled: `sudo setenforce 0`
 
-NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the data will still be found in the `input` table even if it's not written out as `cardatapoints.out`. 
+NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the final data can still be found in the `input` table even if it's not written out as `cardatapoints.out`.  `cardatapoints.outN` are the raw files.  `cardatapoints.out` is the final output after running duplications, or re-entrants, as we've called them.
+
+To drop the database table `input`:
 ```
 psql -d test  # use the -d flag to choose a database, otherwise psql will default to trying to connect to a database with the same name as the user
 psql> drop table input;
 ```
-or the following lines can be added to `DuplicateCars.pl` before the creation of table `input`:
+And also, remove the output files from the chosen output directory, moving any of the raw `cardatapoints.outN` files first if desired.
+
+Or, add the following lines to `DuplicateCars.pl` before the creation of table `input`:
 ```
 writeToLog ( $logfile, $logvar, "Dropping input table.");
 $dbquery="DROP TABLE IF EXISTS input;";
