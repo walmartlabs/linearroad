@@ -55,27 +55,51 @@ DBI->connect("DBI:PgPP:dbname=test", "root", "")
 and insert a `print $dbh;` statement after the connection statement to test for connectivity.  If something prints the connection should be good.
 
 ### Running the script
-To kick off the data creation process you primarily edit two files:
+To start the data creation process you primarily edit two files:
 `mitsim.config` and `linear-road.pl`
+
+But, due to differences in PostgreSQL 8.4.0+ versus 7.x.x, the latter being the version used by this original code, line 197 of `DuplicateCars.pl` should be change from:
+```
+$dbquery="UPDATE input SET carid=carstoreplace.carid WHERE carid=carstoreplace.cartoreplace;";
+```
+to:
+```
+$dbquery="UPDATE input SET carid=carstoreplace.carid FROM carstoreplace WHERE input.carid=carstoreplace.cartoreplace;";
+```
+Note that this is not necessary if all we're generating are the raw files for later processing.
+
+Also, 
 
 In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, `databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user, and select any number of expressways.
 
+NOTE: remove any trailing blank lines in `mitsim.config` to avoid `use of uninitialized value` errors.
+
 In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour` increasing to 1000 and `my $endtime` setting to however long we want the simulation to run.
 
-To kick off the script `./run mitsim.config`.
+To kick off the script `./run mitsim.config`
 
-NOTE: all database tables must be manually dropped or cleared between runs.  The table is not automatically dropped because if file permissions are not right the data will still be found in the `input` table. 
-```
-psql -d test
-```
+NOTE: if SELinux is present it may need to be disabled: `sudo setenforce 0`
 
+NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the data will still be found in the `input` table even if it's not written out as `cardatapoints.out`. 
+```
+psql -d test  # use the -d flag to choose a database, otherwise psql will default to trying to connect to a database with the same name as the user
+psql> drop table input;
+```
+or the following lines can be added to `DuplicateCars.pl` before the creation of table `input`:
+```
+writeToLog ( $logfile, $logvar, "Dropping input table.");
+$dbquery="DROP TABLE IF EXISTS input;";
+$sth=$dbh->prepare("$dbquery") or die $DBI::errstr;
+$sth->execute;
+unlink glob $dir."/*";  # remove previous files from output directory
+```
 Depending on the endtime and number of expressways chosen the program can run for hours, if not days or more.  Each 3 hour 1 expressway set can take ~3 hours to generate.
 
-The raw data is found under the `directoryforoutput` as `cardatapoints.out`N.  N being 0 .. `numberofexpressways`-1.
+The raw data is found under the `directoryforoutput` as N files named `cardatapoints.out`N.  N being 0 .. `numberofexpressways`-1.
 
-The script `Duplicates.pl` can perform the process of combining the multiple raw data files but cannot handle in reasonable time a very large number of expressways.  The self-join query mentioned in the general introduction explains why (the progressive slowdown of self-join query that finds duplicates).  The `directoryforoutput` must also be readable and writeable by the user `postgres`.
+The script `DuplicateCars.pl` can perform the process of combining the multiple raw data files but cannot handle in reasonable time a very large number of expressways.  The self-join query mentioned in the general introduction explains why (the progressive slowdown of self-join query that finds duplicates).  The `directoryforoutput` must also be readable and writeable by the user `postgres`.
 
-In lieu of `Duplicates.pl` the directions below can be followed to create arbitrarily large datasets with duplicates.
+In lieu of `DuplicateCars.pl` the directions below can be followed to create arbitrarily large datasets with duplicates.
 
 ### Creating a single combined data file
 As stated in the README, datasets of arbitrary sizes can be generated on a single machine or by parallelizing the expressway generation on multiple machines.  But, after generation, these must be cleaned (if desired) and combined.  
