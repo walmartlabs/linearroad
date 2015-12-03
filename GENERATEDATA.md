@@ -50,9 +50,9 @@ sudo yum -y install compat-libstdc++-296.i686
 ```
 You should now have PostgreSQL setup with an appropriate user and database along with the proper Perl modules.  To test database connectivity modify the included *test.pl* file to point to the new database connection: 
 ```
-DBI->connect("DBI:PgPP:dbname=test", "root", "")
+DBI->connect("DBI:PgPP:dbname=test", "<linux username>", "")
 ```
-and insert a `print $dbh;` statement after the connection statement to test for connectivity.  If something prints the connection should be good.
+and insert a `print $dbh;` statement after the connection statement to test for connectivity.  If it prints something like DBI::db=HASH(0x138f1a0) the connection should be good.
 
 ### Running the script
 To start the data creation process you primarily edit two files:
