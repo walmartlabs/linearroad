@@ -4,8 +4,8 @@ import subprocess
 
 # combine.py: now takes a single, combined, clean file and creates the tolls and re-entrant cars
 #  this script requires the original 'historical-tolls.pl' script and the 'p_duplicates.py' script
-#  it turns out mysql can run the original self-join query fairly quickly up to a large number of replacements, so
-#    p_duplicates.py may not be necessary, or even the best option anymore
+#  it turns out mysql can run the original self-join query fairly quickly up to a large number of replacements, but
+#  50K took 355176 secs, so a non-db based recombination appears to still be better. 
 # Usage: python combine.py <file> <output dir> <num xways>
 
 file = sys.argv[1]  # not used, because
