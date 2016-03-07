@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
    dataval.py: with a raw mitsim file perform the following:
    check for position reports that are not 30 secs apart, and simply report
    ensure car does not reappear after exiting
