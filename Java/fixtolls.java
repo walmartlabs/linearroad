@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 /**
- * Created by cb on 3/4/2016.
+ * Created by Sung Kim on 3/4/2016.
  * This is also a non-database version of cleaning the tolls file.
  * This is also possible because we only need the type3's from the final data file
  * How many are there?
