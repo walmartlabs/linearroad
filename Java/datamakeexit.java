@@ -4,11 +4,11 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  # datamakeexit.java: ensure that all vehicles get off the xway
  # run after dataval.java and datarm2.java
  # Usage: java datamakeexit <file>  <outfile>
- # Note: NOT using redirection as System.out.println() is VERY slow
+ # Note: NOT using redirection since System.out.println() is VERY slow
 
  */
 public class datamakeexit {
