@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * Created by cb on 3/4/2016.
+ * Created by Sung Kim on 3/4/2016.
  * After using replacecars_1 we have multiple files that need to be combined in time order
  * That means opening one writer but n readers, writing in turn based on time
  * <p>
