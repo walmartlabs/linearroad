@@ -43,38 +43,51 @@ sudo yum -y install compat-libstdc++-296.i686
 To prepare the files from the original data creation process you primarily edit two files:
 `mitsim.config` and `linear-road.pl`
 
-In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, ~~~`databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user,~~~ and select any number of expressways.
+In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing and select any number of expressways.
 
 NOTE: remove any trailing blank lines in `mitsim.config` to avoid `use of uninitialized value` errors.
 
 In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour`, increasing the value to 1000, and `my $endtime`, setting to however long we want the simulation to run.
 
-To kick off the script `./run mitsim.config`
+Make the following changes to `DuplicateCars.pl`:
+1. Remove EVERYTHING between the lines `close ( PROPERTIES); ` AND `sub logTime( {` AND keep the code section below with the following changes:
+  1. add `my $hostname = hostname`
+  2. changed the last `rename` to use `hostname` with an integer suffix (to help with dataorganization if you're generating on multiple macines):
+2. Add `use Sys::Hostname` to the top of the file
+```
+use Sys::Hostname
+...
 
+close ( PROPERTIES );
+
+# Add hostname for easier file differentiator
+my $hostname = hostname
+
+# You don't need a database to create raw files!
+
+#Full expressway Loop (generates an extra one for half).
+for( my $x=0; $x < $numberOfExpressways; $x++){
+        # run linear road
+        writeToLog ( $logfile, $logvar, "Linear road run number: $x");
+        system ("perl linear-road.pl --dir=$dir");
+        rename( $dir."/cardatapoints.out.debug" , $dir."/cardatapoints$x.out.debug" );
+        rename( $dir."/cardatapoints.out$x" , $dir."/$cardatapoints" );
+
+        rename( $dir."/$cardatapoints" , $dir."/$hostname$x" );
+}
+
+sub logTime {
+...
+```
 NOTE: if SELinux is present it may need to be disabled: `sudo setenforce 0`
 
-NOTE: the table `input` must be manually dropped or cleared between runs.  This table is not automatically dropped because if file permissions are not right the final data can still be found in the `input` table even if it's not written out as `cardatapoints.out`.  `cardatapoints.outN` are the raw files.  `cardatapoints.out` is the final output after running duplications or re-entrants--as we've called them.
+To kick off the script `./run mitsim.config`
 
-To drop the database table `input`:
-```
-psql -d test  # use the -d flag to choose a database, otherwise psql will default to trying to connect to a database with the same name as the user
-psql> drop table input;
-```
-And also, remove the output files from the chosen output directory, moving any of the raw `cardatapoints.outN` files first if desired.
+Depending on the endtime and number of expressways chosen the raw data file generator can run for hours, if not days or more.  Each 3 hour 1 raw expressway file set can take ~3-5 hours to generate.  So, it's best to set generation on multiple small machines and leave them alone for a while.  Just ensure that your target directory has enough space to hold the raw data files.  I used 25 separate small VM's with a 70GB disk each to each hold 50 expressways.
 
-For convenience, add the following lines to `DuplicateCars.pl` before the statements that create the table `input`:
-```
-writeToLog ( $logfile, $logvar, "Dropping input table.");
-$dbquery="DROP TABLE IF EXISTS input;";
-$sth=$dbh->prepare("$dbquery") or die $DBI::errstr;
-$sth->execute;
-unlink glob $dir."/*";  # remove previous files from output directory
-```
-Depending on the endtime and number of expressways chosen the program can run for hours, if not days or more.  Each 3 hour 1 expressway set can take ~3-5 hours to generate.
+The raw data is found under the `directoryforoutput` as N files named `$hostname`N.  N being 0 .. `numberofexpressways`-1.
 
-The raw data is found under the `directoryforoutput` as N files named `cardatapoints.out`N.  N being 0 .. `numberofexpressways`-1.
-
-The script `DuplicateCars.pl` can perform the process of combining the multiple raw data files but cannot handle in reasonable time a very large number of expressways.  The self-join query mentioned in the general introduction explains why (the progressive slowdown of self-join query that finds duplicates).  The `directoryforoutput` must also be readable and writeable by the user `postgres`.
+The original script `DuplicateCars.pl` can perform the process of combining the multiple raw data files but cannot handle in reasonable time a very large number of expressways.  The self-join query mentioned in the general introduction explains why (the progressive slowdown of self-join query that finds duplicates).
 
 In lieu of `DuplicateCars.pl` the directions below can be followed to create arbitrarily large datasets with duplicates.
 
@@ -84,52 +97,52 @@ As stated in the README, datasets of arbitrary sizes can be generated on a singl
 **These are the scripts and commands used for cleaning raw files--run on the individual raw files.  (Any number of additional steps can be added as desired.)**
 
 ```
-dataval.py <raw_file>  <temp_outfile>
-datarm2.py <temp_outfile> > <temp_outfile2>  # remove carids with only <=2 tuples
-datamakeexit.py <temp_outfile2> > <temp_outfile3>  # make the last type 0 record an exit lane tuple
+time java dataval <raw_file> <temp_outfile>
+time java datarm2 <temp_outfile> <temp_outfile2>  # remove carids with only <=2 tuples
+time java datamakeexit <temp_outfile2> <temp_outfile3>  # make the last type 0 record an exit lane tuple
 mv <temp_outfile3> <clean_file>
 ```
-After cleaning, merge the _n_ "clean" files.
+After cleaning move all the clean files into a new directory and merge the _n_ "clean" files.
 ```
-datacombine.py  <dir_of_cleaned_files>  <combined_cleaned_file>
+time java datacombine  <dir_of_cleaned_files> <outfile (combined.cleaned.file)>
 ```
+The above command will emit the maximum carid which you need to create the historical tolls file.
 Then, create the tolls and the random re-entrant cars.
+NOTE: the number of expressways for historical_tolls is 0-indexed, so 250 xways requires an argument of 249.
 ```
-combine.py <combined_cleaned_file> <output_dir> <num_xways>
-  # combine.py uses: p_duplicates.py, historical-tolls.pl
-  # Also, pre-create the following files in the <output_dir> and change permissions accordingly:
-touch carsandtimes.csv; touch carstoreplace.csv; chmod 777 carsandtimes.csv; chmod 777 carstoreplace.csv 
-  #These steps are necessary as some databases write out files with owner read permissions only, but c
+time java historical_tolls <num_xways - 1> <maxcarid> <outfile (raw.toll.file)>
 ```
-Clean the generated tolls to match the tuples present in the position reports.
+The recombination, which was previously the slowest step, now happens in minutes.
+The first step creates the carsandtimes table originally performed in a database.  This version is much, much faster than the original using a database.  The overlap was set to 10 and determines the percentage of cars to use as the candidate pool for re-entrance.
 ```
-datafixtype3.py <output_dir>/my.data.out <output_dir>/my.tolls.out <output_dir>/my.tolls.clean
+time java create_carsandtimes_and_2replace_mt_1 <infile (clean combined file)> <overlap> <outfile (cars and times)>
 ```
+Now, create the cars to replace.  This step only took 32 minutes for a 250 expressway set.
+```
+time java create_carsandtimes_and_2replace_mt_2 (infile (cars and times)> <dummy var> <outfile (cars to replace)>
+```
+Now perform the actual replacements.  No DB necessary, but we split into N xway separate files so we can time order the single file later.  The output is N xway files named `replaced.part-N` using the outfile prefix, a dash, and an int.
+```
+time java replacecars_1 <infile (cars to replace)> <infile (clean combined file)> <outfile prefix (i.e. replaced.part)>
+```
+Move files to a new directory to hold the individual xways.
+```
+mkdir temp
+mv replaced.part* temp/ ; 
+```
+Now, combine the parts into a single, time-ordered file.
+```
+time java combine_after_replace temp/ <outfile (final data file)>
+```
+Now clean the generated tolls to match the tuples present in the position reports.
+```
+time java fixtolls <infile (raw toll file)> <infile (final data file)> <outfile (final toll file)>
+```
+Make sure you have enough space on your hardrives to handle all files and temp files.  Each xway will generate ~1GB of position data and ~330MB of toll data.  Using multiple disks is recommended for temp and final file output.  I.e. for a 250 xway set: 250 GB for individual clean files, 250GB for combined clean file, 82-7GB for raw toll file, 250GB for split replaced parts, 250GB for final file, 82-7GB for final toll file, for a total of roughly 1.5 TB of free space to generate a 250 xway set.
 
-**Recap of scripts and order of usage:**
-
-> On each raw file:
+All the commands can be combined into a single line bash call as shown below.
+`datadrive` and `datadrive2` are my data directories.
+NOTE: I set an env variable to hold the maxcarid and I `cd` into the directory with my java files and use full paths for all files and directories.
 ```
-dataval.py <raw_file> <temp_file_1>
-datarm2.py <temp_file_1> > <temp_file_2>
-datamakeexit.py <temp_file_2> > <temp_file_3>
+maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; time java create_carsandtimes_and_2replace_mt_1 /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; time java create_carsandtimes_and_2replace_mt_2 /datadrive2/250.carsandtimes 1 /datadrive2/250.carstoreplace ; time java replacecars_1 /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; mkdir /datadrive2/250.temp ; mv 250.replaced.part* /datadrive2/250.temp ; time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
 ```
-> Using the cleaned files create a single file:
-```
-datacombine.py <dir_of_cleaned_files>/ <output_dir>/clean.combined
-```
-> On the single combined file:
-```
-combine.py <output_dir>/clean.combined <output_dir> <num_xways>
-```
-> On the output toll file:
-```
-datafixtype3.py <output_dir>/my.data.out <output_dir>/my.tolls.out <output_dir>/my.tolls.clean
-```
-### Final outputs
-The final outputs will be: 
-```
-<output_dir>/my.data.out
-<output_dir>/my.tolls.clean
-```
-The scripts `preprawdata.sh` and `prepcleandata.sh` combine all the scripts and take a directory of raw or clean files, respectively, and output the final files.
