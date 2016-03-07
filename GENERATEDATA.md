@@ -1,6 +1,8 @@
 # How to generate data files
 
 ## Notes
+2016-03-07: Initially a few cleansing and combination scripts were re-written in C which yielded tremendous speed benefits.  Most required actions were halved or reduced to a third of the original time.  Then, the scripts were re-written in Java and surprising the performance was even faster.  All the scripts were re-written in Java and now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours.  A database is no longer necessary.  Generation of raw original files also no longer requires a database.  Details, scripts, and usage follow below.  Set up of raw file generators remains the same, but some script changes allows for data-generation without a database.
+
 2016-02-03: New scripts have been written (but not yet posted) to reduce the time required for many of the tasks below.  For example, the creation of re-entrant cars has gone from days to hours--and the number of re-entrant cars is also much greater.  Also, the process of cleaning raw files and creating historical tolls has also been parallelized to take advantage of multiple cores and multiple machines.
 
 For the creation of re-entrant cars, using the previous method--which was still faster than going to a database--took ~30+ hours to create ~200K replacements from a set of ~780K cars with times for a 50 expressway dataset.  The new method will produce ~1M replacements from a set of ~2.1M cars with times in six hours, most of which time is spent in simply reading 150GB of data for a 150 expressway dataset.
@@ -27,18 +29,16 @@ cd MITSIMLab
 tar xf ../mitsim.tar.gz
 ```
 
-Install and set up the PostgreSQL database (these instructions may vary based on the version of PostgreSQL).  For version 8.4.0 that the default CentOS 6.5/6 repo in Azure installs:
+~~~Install and set up the PostgreSQL database (these instructions may vary based on the version of PostgreSQL).  For version 8.4.0 that the default CentOS 6.5/6 repo in Azure installs:~~~
 
-```
-sudo yum -y install postgresql postgresql-server
-sudo service postgresql initdb
-sudo service postgresql start
-sudo su postgres
-psql
-psql> create user <linux username>;  # this should be the same username from which scripts will be run
-psql> alter role <linux username> with superuser login;
-psql> create database test;
-```
+~~~sudo yum -y install postgresql postgresql-server~~~
+~~~sudo service postgresql initdb~~~
+~~~sudo service postgresql start~~~
+~~~sudo su postgres~~~
+~~~psql~~~
+~~~psql> create user <linux username>;  # this should be the same username from which scripts will be run~~~
+~~~psql> alter role <linux username> with superuser login;~~~
+~~~psql> create database test;~~~
 
 Install gcc and make if not already installed.
 ```
