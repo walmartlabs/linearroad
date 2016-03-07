@@ -117,11 +117,11 @@ time java create_carsandtimes_and_2replace_mt_1 <infile (clean combined file)> <
 ```
 Now, create the cars to replace.  This step only took 32 minutes for a 250 expressway set.
 ```
-time java create_carsandtimes_and_2replace_mt_2 (infile (cars and times)> <dummy var> <outfile (cars to replace)>
+time java create_carsandtimes_and_2replace_mt_2 (infile (cars and times)> <outfile (cars to replace)>
 ```
 Now perform the actual replacements.  No DB necessary, but we split into N xway separate files so we can time order the single file later.  The output is N xway files named `replaced.part-N` using the outfile prefix, a dash, and an int.
 ```
-time java replacecars_1 <infile (cars to replace)> <infile (clean combined file)> <outfile prefix (i.e. replaced.part)>
+time java replacecars <infile (cars to replace)> <infile (clean combined file)> <outfile prefix (i.e. replaced.part)>
 ```
 Move files to a new directory to hold the individual xways.
 ```
@@ -138,9 +138,9 @@ time java fixtolls <infile (raw toll file)> <infile (final data file)> <outfile 
 ```
 Make sure you have enough space on your hardrives to handle all files and temp files.  Each xway will generate ~1GB of position data and ~330MB of toll data.  Using multiple disks is recommended for temp and final file output.  I.e. for a 250 xway set: 250 GB for individual clean files, 250GB for combined clean file, 82-7GB for raw toll file, 250GB for split replaced parts, 250GB for final file, 82-7GB for final toll file, for a total of roughly 1.5 TB of free space to generate a 250 xway set.
 
-All the commands can be combined into a single line bash call as shown below.
+All the commands (after having a dir of cleaned files) can be combined into a single line bash call as shown below.
 `datadrive` and `datadrive2` are my data directories.
 NOTE: I set an env variable to hold the maxcarid and I `cd` into the directory with my java files and use full paths for all files and directories.
 ```
-maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; time java create_carsandtimes_and_2replace_mt_1 /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; time java create_carsandtimes_and_2replace_mt_2 /datadrive2/250.carsandtimes 1 /datadrive2/250.carstoreplace ; time java replacecars_1 /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; mkdir /datadrive2/250.temp ; mv 250.replaced.part* /datadrive2/250.temp ; time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
+maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; time java create_carsandtimes_and_2replace_mt_1 /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; time java create_carsandtimes_and_2replace_mt_2 /datadrive2/250.carsandtimes /datadrive2/250.carstoreplace ; time java replacecars /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; mkdir /datadrive2/250.temp ; mv 250.replaced.part* /datadrive2/250.temp ; time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
 ```
