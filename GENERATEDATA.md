@@ -1,7 +1,7 @@
 # How to generate data files
 
 ## Notes
-2016-03-07: Initially a few cleansing and combination scripts were re-written in C which yielded tremendous speed benefits.  Most required actions were halved or reduced to a third of the original time.  Then, the scripts were re-written in Java and surprising the performance was even faster.  All the scripts were re-written in Java and now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours.  A database is no longer necessary.  Generation of raw original files also no longer requires a database.  Details, scripts, and usage follow below.  Set up of raw file generators remains the same, but some script changes allows for data-generation without a database.
+2016-03-07: Initially a few cleansing and combination scripts were re-written in C which yielded tremendous speed benefits.  Most required steps were halved or reduced to a third of the original time.  Then, the scripts were re-written in Java and surprisingly the performance was even faster.  All the scripts were re-written in Java (8u73).  Now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours.  A database is no longer necessary.  Generation of raw original files also no longer requires a database.  Details, scripts, and usage follow below.  Set up of raw file generators is also modified to no longer need a database.
 
 2016-02-03: New scripts have been written (but not yet posted) to reduce the time required for many of the tasks below.  For example, the creation of re-entrant cars has gone from days to hours--and the number of re-entrant cars is also much greater.  Also, the process of cleaning raw files and creating historical tolls has also been parallelized to take advantage of multiple cores and multiple machines.
 
@@ -29,52 +29,21 @@ cd MITSIMLab
 tar xf ../mitsim.tar.gz
 ```
 
-~~~Install and set up the PostgreSQL database (these instructions may vary based on the version of PostgreSQL).  For version 8.4.0 that the default CentOS 6.5/6 repo in Azure installs:~~~
-
-~~~sudo yum -y install postgresql postgresql-server~~~
-~~~sudo service postgresql initdb~~~
-~~~sudo service postgresql start~~~
-~~~sudo su postgres~~~
-~~~psql~~~
-~~~psql> create user <linux username>;  # this should be the same username from which scripts will be run~~~
-~~~psql> alter role <linux username> with superuser login;~~~
-~~~psql> create database test;~~~
-
-Install gcc and make if not already installed.
+Install gcc and make if not already installed.  (May no longer be necessaryy as we no longer need PostgreSQL)
 ```
 sudo yum -y install gcc make
 ```
-Install the appropriate Perl modules for the scripts to interact with postgresql.
-```
-sudo perl -MCPAN -e "install DBI"
-sudo perl -MCPAN -e "install DBD::PgPP"
-sudo perl -MCPAN -e "install Math::Random"
-```
-Install the 32-bit compatibility pack:
+
+Install the 32-bit compatibility pack (for original MITSIM generator to work on 64-bit archs):
 ```
 sudo yum -y install compat-libstdc++-296.i686
 ```
-You should now have PostgreSQL setup with an appropriate user and database along with the proper Perl modules.  To test database connectivity modify the included *test.pl* file to point to the new database connection: 
-```
-DBI->connect("DBI:PgPP:dbname=test", "<linux username>", "")
-```
-and insert a `print $dbh;` statement after the connection statement to test for connectivity.  If it prints something like DBI::db=HASH(0x138f1a0) the connection should be good.
 
-### Running the script
-To start the data creation process you primarily edit two files:
+### Running the original data generator script (again, can parallelize by copying files to n machines after modification and starting on n machines) 
+To prepare the files from the original data creation process you primarily edit two files:
 `mitsim.config` and `linear-road.pl`
 
-Note that due to differences in PostgreSQL 8.4.0+ from 7.x.x, the latter being the version used by the original code, line 197 of `DuplicateCars.pl` should be changed from:
-```
-$dbquery="UPDATE input SET carid=carstoreplace.carid WHERE carid=carstoreplace.cartoreplace;";
-```
-to:
-```
-$dbquery="UPDATE input SET carid=carstoreplace.carid FROM carstoreplace WHERE input.carid=carstoreplace.cartoreplace;";
-```
-Note that this is not necessary if all we're generating are the raw files for later processing.
-
-In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, `databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user, and select any number of expressways.
+In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing, ~~~`databasename` to "test", set the `databasepassword` to `databasepassword=` if you don't have a password for the user,~~~ and select any number of expressways.
 
 NOTE: remove any trailing blank lines in `mitsim.config` to avoid `use of uninitialized value` errors.
 
