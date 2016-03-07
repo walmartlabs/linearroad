@@ -3,13 +3,11 @@
 ## Notes
 2016-03-07: Initially a few cleansing and combination scripts were re-written in C which yielded tremendous speed benefits.  Most required steps were halved or reduced to a third of the original time.  Then, the scripts were re-written in Java and surprisingly the performance was even faster.  All the scripts were re-written in Java (8u73).  Now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours.  A database is no longer necessary.  Generation of raw original files also no longer requires a database.  Details, scripts, and usage follow below.  Set up of raw file generators is also modified to no longer need a database.
 
-2016-02-03: New scripts have been written (but not yet posted) to reduce the time required for many of the tasks below.  For example, the creation of re-entrant cars has gone from days to hours--and the number of re-entrant cars is also much greater.  Also, the process of cleaning raw files and creating historical tolls has also been parallelized to take advantage of multiple cores and multiple machines.
+For the creation of re-entrant cars, using the previous method--which was still faster than going to a database--took ~30+ hours to create ~200K replacements from a set of ~780K cars with times for a 50 expressway dataset.  The newest method will produce the same number of replacements from the same ~780K cars in seconds.
 
-For the creation of re-entrant cars, using the previous method--which was still faster than going to a database--took ~30+ hours to create ~200K replacements from a set of ~780K cars with times for a 50 expressway dataset.  The new method will produce ~1M replacements from a set of ~2.1M cars with times in six hours, most of which time is spent in simply reading 150GB of data for a 150 expressway dataset.
+Java src can be found in the Java directory.  Java cripts were written using IntelliJ 15, community edition.
 
 Also added are stripped versions of Duplicates.pl from the original mitsim generator that no longer needs a database but simply generates raw expressway files.
-
-Once posted, the scripts can still be refined over time.
 
 To create the datafiles download the data generator from http://www.cs.brandeis.edu/~linearroad/tools.html.
 
