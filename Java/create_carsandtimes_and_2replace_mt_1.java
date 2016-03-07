@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  * Create the carsandtimes after reading the single combined file
  * ********************************************************
  * This only creates the carsandtimes NOT the carstoreplace
@@ -18,11 +18,9 @@ public class create_carsandtimes_and_2replace_mt_1 {
         File infile = new File(args[0]);
         int overlap = Integer.parseInt(args[1]);
         File outfile = new File(args[2]);
-        // Start with a HashMap then consider moving to an array (although it would be HUUUUUGE)
         HashMap<Integer, HashMap<String, Integer>> cars = new HashMap<>();
         HashSet<Integer> rejects = new HashSet<>();
         HashSet<Integer> will_double = new HashSet<>();
-        int maxCarId = 0;  // We look for it here because we can, but if we make sure to record it after combining the files we could feasibly use an array instead of the maps and sets
         BufferedReader reader = new BufferedReader(new FileReader(infile));
         String line;
         String[] tokens;
@@ -37,8 +35,6 @@ public class create_carsandtimes_and_2replace_mt_1 {
             time = Integer.parseInt(tokens[1]);
             xway = Integer.parseInt(tokens[4]);
 
-            if (carid > maxCarId) maxCarId = carid;
-
             if (!rejects.contains(carid)) {
                 if (cars.containsKey(carid)) cars.get(carid).put("Exit", time);
                 else {
@@ -52,7 +48,7 @@ public class create_carsandtimes_and_2replace_mt_1 {
                 }
             }
         }
-        // We'll keep this because it gives us the raw file to work with if something happens during further processing (and we may want to split this processing)
+
         for (int cid : cars.keySet()) {
             writer.println(cid +","+cars.get(cid).get("Enter")+","+cars.get(cid).get("Exit")+","+cars.get(cid).get("Xway"));
         }
