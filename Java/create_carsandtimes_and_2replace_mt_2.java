@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  * Create the carstoreplace after reading the carsandtimes file
  * ********************************************************
- * This only creates the carstoreplace AND NEEDS the carsandtimes file from *_1
+ * This only creates the carstoreplace and needs the carsandtimes file from *_1
  * ********************************************************
- * java create_carsandtimes_and_2replace_mt_2 <carsandtimes_file> <overlap factor: 0 - 100> <carstoreplace_file>
+ * java create_carsandtimes_and_2replace_mt_2 <carsandtimes_file> <carstoreplace_file>
  */
 public class create_carsandtimes_and_2replace_mt_2 {
 
@@ -20,14 +20,9 @@ public class create_carsandtimes_and_2replace_mt_2 {
 
     public static void main(String[] args) throws Exception {
         File infile = new File(args[0]);
-        int overlap = Integer.parseInt(args[1]);
-        File outfile = new File(args[2]);
-        // Start with a HashMap then consider moving to an array (although it would be HUUUUUGE)
+        File outfile = new File(args[1]);
         HashMap<Integer, HashMap<String, Integer>> cars = new HashMap<>();
-        HashSet<Integer> rejects = new HashSet<>();
         HashSet<Integer> used = new HashSet<>();
-        HashSet<Integer> will_double = new HashSet<>();
-        int maxCarId = 0;  // We look for it here because we can, but if we make sure to record it after combining the files we could feasibly use an array instead of the maps and sets
         BufferedReader reader = new BufferedReader(new FileReader(infile));
         String line;
         String[] tokens;
@@ -57,18 +52,12 @@ public class create_carsandtimes_and_2replace_mt_2 {
             keySetToArray.add(cars.get(cid));
         }
         setSize = cars.keySet().size();
-        //System.out.println(keySetToArray.size());
-        //System.out.println(keySetToArray.get(0));
 
         for (int cid : cars.keySet()) {
-            //System.out.println("cid: " + cid);
             rTime = (int) (Math.random() * 1000) + 61;
-            //System.out.println("rTime: " + rTime);
             for (int i = 0; i < NUM_TRIES; i++) {
                 rCarIndex = (int) (Math.random() * setSize);
-                //System.out.println("rCarIndex: " + rCarIndex);
                 rCar = keySetToArray.get(rCarIndex).get("CarId");
-                //System.out.println("rCar: " + rCar);
                 if ((!used.contains(rCar)) && rCar != cid && (cars.get(rCar).get("Enter") > (cars.get(cid).get("Exit") + rTime))) {
                     used.add(rCar);
                     used.add(cid);
