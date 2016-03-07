@@ -35,7 +35,7 @@ The percentage of cars to check for possible re-entry is 10% by default.  Note t
 
 From this larger number of potential re-entrant carid's, a table with the _enter-time_, the _leave-time_, and the _expressway_ of each carid that actually exists in the generated data is created.  Then comes the phase where carid's in this new table is checked to see if a carid with an _enter-time > 1000 * random.random() + 61 + leave-time_ of another car exists.  And, if more than expressway is simulated, the carid's must be from different expressways.  We are simulating a car leaving one expressway and re-entering on a different expressway at a later point in time.  If only one expressway is present then we are simply simulating a car re-entering at a later point in time.  The _1000 * random.random() + 61_ appears to be arbitrary.  Python's random.random() returns a floating point number between 0.0 and 1.0, not including 1.0, or [0.0,1.0).
 
-This process of making re-entrant carid's is the bottleneck of creating a single file from any arbitrary number of cleaned files.  The original SQL version used the following query:
+This process of making re-entrant carid's was a bottleneck of creating a single file from any arbitrary number of cleaned files.  The original SQL version used the following query:
 
 _SELECT times.carid, times.entertime, times.leavetime, times_1.carid as carid1, times_1.entertime as entertime1, times_1.leavetime as leavetime1
 FROM carsandtimes as times, carsandtimes AS times_1
@@ -50,11 +50,13 @@ The issue with the original SQL statement is the size of the self-joined table. 
 
 To mitigate the issue above a separate script was created that creates the re-entrant cars.
 
-This script creates the re-entrant cars in a single pass (or any number of passes).
-All the cars in the actual existing cars are loaded into a list, shuffled, and that list is operated on to create a separate list of lists, or tuples, of _(carid,cartoreplace)_.
-The current script tries 1,000 random times to find a suitable match.  If a match is found the current carid and the matching carid are removed.  Since a list is modified during iteration this means elements will be skipped if only one passed is used.  This script is itself an improvement over an O(n^2) version which simply iterated through a copy of the list to find a suitable replacement.  Ideally this script is O(n), but for almost 1M records it still had a run time of roughly 30 hours for a single pass.  Some modifications to improve the run time include reducing the number of tries to 500 or maybe 100.
+~~This script creates the re-entrant cars in a single pass (or any number of passes).~~
+~~All the cars in the actual existing cars are loaded into a list, shuffled, and that list is operated on to create a separate list of lists, or tuples, of _(carid,cartoreplace)_.~~
+~~The current script tries 1,000 random times to find a suitable match.  If a match is found the current carid and the matching carid are removed.  Since a list is modified during iteration this means elements will be skipped if only one passed is used.  This script is itself an improvement over an O(n^2) version which simply iterated through a copy of the list to find a suitable replacement.  Ideally this script is O(n), but for almost 1M records it still had a run time of roughly 30 hours for a single pass.  Some modifications to improve the run time include reducing the number of tries to 500 or maybe 100.~~
 
-Another option would be to stop looping the original query after an arbitrary number of replacements are found.  Or, stop when queries start taking more than some arbitrary number of seconds.
+~~Another option would be to stop looping the original query after an arbitrary number of replacements are found.  Or, stop when queries start taking more than some arbitrary number of seconds.~~
+
+Data preparation and generation has been completely re-written in Java and all the previous issues have been mitigated.  A 250 expressway set can now be generated from clean files in under 24 hours without a database.  File cleansing time has been halved.  Raw file generation no longer requires a databases.
 
 The tolls are simply a random table using the max carid after all the files have been combined.  So, if the max carid were 100 with two expressways then the tolls table would be carid's 1 thru 100, with a row for each carid-day combination, where days run from 1 thru 69.  Each historical toll row will have a random expressway from 0 or 1 and a random toll value from 0 thru 99.  So, the table size will be max carid * 69.  For our 50 expressway set the number of rows is 963,111,453.  Note that the random expressway will not match the expressway created associated with the position report tuple.  This is accounted for later.   
 
