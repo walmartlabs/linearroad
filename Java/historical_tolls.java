@@ -2,10 +2,10 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  *
  * Usage: java historical_tolls <max xway> <max carid> <outfile>
- * NOTE: max xway is NOT number of xways!  It's the zero-index max xway.
+ * NOTE: max xway is NOT number of xways but the zero-index max xway; so if you have 250 xways, <max xway> should be 249.
  */
 
 public class historical_tolls {
