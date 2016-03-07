@@ -58,6 +58,7 @@ public class create_carsandtimes_and_2replace_mt_2 {
             for (int i = 0; i < NUM_TRIES; i++) {
                 rCarIndex = (int) (Math.random() * setSize);
                 rCar = keySetToArray.get(rCarIndex).get("CarId");
+                // TO DO: account for single xway scenario
                 if ((!used.contains(rCar)) && rCar != cid && (cars.get(rCar).get("Enter") > (cars.get(cid).get("Exit") + rTime))) {
                     used.add(rCar);
                     used.add(cid);
