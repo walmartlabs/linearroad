@@ -4,9 +4,9 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  * # datarm2_1.java: remove carid's with only one or two records
- * # writes to an outfile because System.out.println() is incredibly slow!
+ * # writes to an outfile because System.out.println() is slow
  * # Usage: datarm2_1 <file>  <outfile>
  */
 public class datarm2_1 {
