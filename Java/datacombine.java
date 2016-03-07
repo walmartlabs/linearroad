@@ -1,7 +1,7 @@
 import java.io.*;
 
 /**
- * Created by cb on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016.
  */
 public class datacombine {
     final static int NUM_FIELDS = 15;
