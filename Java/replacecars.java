@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by cb on 3/3/2016.
- * replacecars_1
- * A NON-database replacecars.  Let's see if it's performant. (It should be since the simple act of loading a file takes so much time!)
+ * Created by Sung Kim on 3/3/2016.
+ * replacecars
+ * A NON-database replacecars.  It should be performant since the simple act of loading a file into a db can take a lot of time.
  * BUT, also write out each xway to a separate file to combine later in time order
- * Usage: java replacecars_1 <carstoreplace_file> <combined_file>  <outfile_base_name>
+ * Usage: java replacecars <carstoreplace_file> <combined_file>  <outfile_base_name>
  */
 public class replacecars_1 {
     public static void main(String[] args) throws Exception {
@@ -28,7 +28,7 @@ public class replacecars_1 {
         reader = new BufferedReader(new FileReader(carsToReplaceFile));
         while ((line = reader.readLine()) != null) {
             tokens = line.split(",");
-            carsToReplace.put(tokens[1], tokens[0]);  // This needed to be reversed.  Why?  Because we want to find the car _to replace_ and that's best placed as the KEY not the VALUE
+            carsToReplace.put(tokens[1], tokens[0]);  // This needed to be reversed.  Why?  Because we want to find the car _to replace_ and that's best placed as the key not the val.
         }
         reader.close();
 
@@ -49,9 +49,7 @@ public class replacecars_1 {
                 writer = new PrintWriter(new File(outfileBaseName+"-"+xway));
             }
             lastTime = time;
-            //lastXway = Integer.parseInt(tokens[4]);  // Except, how do we account for the possibility of a file ending or beginning with a type 2 or 3?  (time)
-            // The files are sequential, so you can know where all the type 2's and 3's belong!
-            // And this means I can finally put xways to types 2 and 3!
+            // The files are sequential, so you can know where all the type 2's and 3's belong.
             tokens[4] = Integer.toString(xway);
             dataval.printTokensToFile(writer, out_token, tokens);
         }
