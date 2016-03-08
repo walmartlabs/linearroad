@@ -113,11 +113,11 @@ time java historical_tolls <num_xways - 1> <maxcarid> <outfile (raw.toll.file)>
 The recombination, which was previously the slowest step, now happens in minutes.
 The first step creates the carsandtimes table originally performed in a database.  This version is much, much faster than the original using a database.  The overlap was set to 10 and determines the percentage of cars to use as the candidate pool for re-entrance.
 ```
-time java create_carsandtimes_and_2replace_mt_1 <infile (clean combined file)> <overlap> <outfile (cars and times)>
+time java create_carsandtimes <infile (clean combined file)> <overlap> <outfile (cars and times)>
 ```
 Now, create the cars to replace.  This step only took 32 minutes for a 250 expressway set.
 ```
-time java create_carsandtimes_and_2replace_mt_2 (infile (cars and times)> <outfile (cars to replace)>
+time java create_carstoreplace (infile (cars and times)> <outfile (cars to replace)>
 ```
 Now perform the actual replacements.  No DB necessary, but we split into N xway separate files so we can time order the single file later.  The output is N xway files named `replaced.part-N` using the outfile prefix, a dash, and an int.
 ```
@@ -142,5 +142,14 @@ All the commands (after having a dir of cleaned files) can be combined into a si
 `datadrive` and `datadrive2` are my data directories.
 NOTE: I set an env variable to hold the maxcarid and I `cd` into the directory with my java files and use full paths for all files and directories.
 ```
-maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; time java create_carsandtimes_and_2replace_mt_1 /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; time java create_carsandtimes_and_2replace_mt_2 /datadrive2/250.carsandtimes /datadrive2/250.carstoreplace ; time java replacecars /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; mkdir /datadrive2/250.temp ; mv 250.replaced.part* /datadrive2/250.temp ; time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
+maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; \
+time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; \
+time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; \
+time java create_carsandtimes /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; \
+time java create_carstoreplace /datadrive2/250.carsandtimes /datadrive2/250.carstoreplace ; \
+time java replacecars /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; \
+mkdir /datadrive2/250.temp ; \
+mv /datadrive2/250.replaced.part* /datadrive2/250.temp ; \
+time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; \
+time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
 ```
