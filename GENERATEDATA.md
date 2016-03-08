@@ -190,5 +190,6 @@ real    0m58.770s     0m57.163s
 user    0m52.739s     0m51.802s
 sys     0m5.515s      0m4.926s
 
-Total: 8m22.394s      8m21.612s
+Total:  
+(real)  8m22.394s      8m21.612s
 ```
