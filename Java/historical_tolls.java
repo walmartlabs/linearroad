@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Created by Sung Kim on 3/2/2016.
+ * Created by Sung Kim on 3/2/2016..
  *
  * Usage: java historical_tolls <num xways> <max carid> <outfile>
  * NOTE: num xway is the number of xways, not the 0-indexed largest xway.  So, 3 files => java historical_tolls 3 <max carid> <outfile>
