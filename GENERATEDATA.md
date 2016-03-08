@@ -102,26 +102,26 @@ mv <temp_outfile3> <clean_file>
 ```
 After cleaning move all the clean files into a new directory and merge the _n_ "clean" files.
 ```
-time java datacombine  <dir_of_cleaned_files> <outfile (combined.cleaned.file)>
+time java datacombine  <dir_of_cleaned_files> <outfile (combined_cleaned_file)>
 ```
 The above command will emit the maximum carid which you need to create the historical tolls file.
 Then, create the tolls and the random re-entrant cars.
-NOTE: the number of expressways for historical_tolls is 0-indexed, so 250 xways requires an argument of 249.
+NOTE: number of expressways == 3 for historical_tolls will yield xways from 0 - 2
 ```
-time java historical_tolls <num_xways - 1> <maxcarid> <outfile (raw.toll.file)>
+time java historical_tolls <numxways> <maxcarid> <outfile (raw_toll_file)>
 ```
 The recombination, which was previously the slowest step, now happens in minutes.
 The first step creates the carsandtimes table originally performed in a database.  This version is much, much faster than the original using a database.  The overlap was set to 10 and determines the percentage of cars to use as the candidate pool for re-entrance.
 ```
-time java create_carsandtimes <infile (clean combined file)> <overlap> <outfile (cars and times)>
+time java create_carsandtimes <infile (clean_combined_file)> <overlap> <outfile (cars_and_times)>
 ```
 Now, create the cars to replace.  This step only took 32 minutes for a 250 expressway set.
 ```
-time java create_carstoreplace (infile (cars and times)> <outfile (cars to replace)>
+time java create_carstoreplace (infile (cars_and_times)> <outfile (cars_to_replace)>
 ```
 Now perform the actual replacements.  No DB necessary, but we split into N xway separate files so we can time order the single file later.  The output is N xway files named `replaced.part-N` using the outfile prefix, a dash, and an int.
 ```
-time java replacecars <infile (cars to replace)> <infile (clean combined file)> <outfile prefix (i.e. replaced.part)>
+time java replacecars <infile (cars_to_replace)> <infile (clean_combined_file)> <outfile prefix (i.e. replacedprefix)>
 ```
 Move files to a new directory to hold the individual xways.
 ```
@@ -130,11 +130,11 @@ mv replaced.part* temp/ ;
 ```
 Now, combine the parts into a single, time-ordered file.
 ```
-time java combine_after_replace temp/ <outfile (final data file)>
+time java combine_after_replace temp/ <outfile (final_data_file)>
 ```
 Now clean the generated tolls to match the tuples present in the position reports.
 ```
-time java fixtolls <infile (raw toll file)> <infile (final data file)> <outfile (final toll file)>
+time java fixtolls <infile (raw_toll_file)> <infile (final_data_file)> <outfile (final_toll_file)>
 ```
 Make sure you have enough space on your hardrives to handle all files and temp files.  Each xway will generate ~1GB of position data and ~330MB of toll data.  Using multiple disks is recommended for temp and final file output.  I.e. for a 250 xway set: 250 GB for individual clean files, 250GB for combined clean file, 82-7GB for raw toll file, 250GB for split replaced parts, 250GB for final file, 82-7GB for final toll file, for a total of roughly 1.5 TB of free space to generate a 250 xway set.
 
@@ -153,3 +153,31 @@ mv /datadrive2/250.replaced.part* /datadrive2/250.temp ; \
 time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; \
 time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
 ```
+Timings for a 3 xway run:
+real    2m9.941s
+user    2m1.897s
+sys     0m9.083s
+
+real    0m29.181s
+user    0m18.123s
+sys     0m2.051s
+
+real    1m12.947s
+user    1m12.000s
+sys     0m2.498s
+
+real    0m1.411s
+user    0m2.509s
+sys     0m0.114s
+
+real    2m8.118s
+user    1m43.463s
+sys     0m10.084s
+
+real    1m25.026s
+user    1m13.299s
+sys     0m11.676s
+
+real    0m58.770s
+user    0m52.739s
+sys     0m5.515s
