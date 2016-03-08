@@ -8,7 +8,7 @@ import java.io.PrintWriter;
  * datarm2.java: remove carid's with only one or two records
  * Usage: datarm2 <file>  <outfile>
  */
-public class datarm2_1 {
+public class datarm2 {
     static final int MAX_CARID = 300000;
 
     public static void main(String[] args) throws Exception {
