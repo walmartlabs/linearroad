@@ -153,42 +153,42 @@ mv /datadrive2/3.replaced.part* /datadrive2/3.temp ; \
 time java combine_after_replace /datadrive2/3.temp /datadrive/3h3x.dat ; \
 time java fixtolls /datadrive2/3.tolls.raw /datadrive/3h3x.dat /datadrive/3h3x.tolls.dat
 ```
-Timings for a 3 xway run:
+Timings for two 3 xway runs:
 ```
 [datacombine]
-real    2m9.941s
-user    2m1.897s
-sys     0m9.083s
+real    2m9.941s      2m14.096s
+user    2m1.897s      2m4.121s
+sys     0m9.083s      0m0.301s
 
 [historical_tolls]
-real    0m29.181s
-user    0m18.123s
-sys     0m2.051s
+real    0m29.181s     0m27.873s
+user    0m18.123s     0m18.440s
+sys     0m2.051s      0m2.042s
 
 [create_carsandtimes]
-real    1m12.947s
-user    1m12.000s
-sys     0m2.498s
+real    1m12.947s     1m12.847s
+user    1m12.000s     1m12.160s
+sys     0m2.498s      0m2.536s
 
 [create_carstoreplace]
-real    0m1.411s
-user    0m2.509s
-sys     0m0.114s
+real    0m1.411s      0m1.669s
+user    0m2.509s      0m2.883s
+sys     0m0.114s      0m0.138s
 
 [replacecars]
-real    2m8.118s
-user    1m43.463s
-sys     0m10.084s
+real    2m8.118s      1m57.721s
+user    1m43.463s     1m49.996s
+sys     0m10.084s     0m8.635s
 
 [combine_after_replace]
-real    1m25.026s
-user    1m13.299s
-sys     0m11.676s
+real    1m25.026s     1m30.243s
+user    1m13.299s     1m12.807s
+sys     0m11.676s     0m11.861s
 
 [fixtolls]
-real    0m58.770s
-user    0m52.739s
-sys     0m5.515s
+real    0m58.770s     0m57.163s
+user    0m52.739s     0m51.802s
+sys     0m5.515s      0m4.926s
 
-Total real time: 8m22.394s
+Total: 8m22.394s      8m21.612s
 ```
