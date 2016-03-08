@@ -117,7 +117,7 @@ time java create_carsandtimes <infile (clean_combined_file)> <overlap> <outfile 
 ```
 Now, create the cars to replace.  This step only took 32 minutes for a 250 expressway set.
 ```
-time java create_carstoreplace (infile (cars_and_times)> <outfile (cars_to_replace)>
+time java create_carstoreplace (infile (cars_and_times)> <outfile (cars_to_replace)> <numxways>
 ```
 Now perform the actual replacements.  No DB necessary, but we split into N xway separate files so we can time order the single file later.  The output is N xway files named `replaced.part-N` using the outfile prefix, a dash, and an int.
 ```
@@ -140,18 +140,18 @@ Make sure you have enough space on your hardrives to handle all files and temp f
 
 All the commands (after having a dir of cleaned files) can be combined into a single line bash call as shown below.
 `datadrive` and `datadrive2` are my data directories.
-NOTE: I set an env variable to hold the maxcarid and I `cd` into the directory with my java files and use full paths for all files and directories.
+NOTE: I set an env variable to hold the maxcarid, `cd` into the directory containing the java class files, and use full paths for all files and directories.
 ```
-maxcarid=0 ; cd /datadrive/java/dataval/out/production/dataval/ ; \
-time maxcarid=$(java datacombine /datadrive/clean /datadrive2/250.combined) ; \
-time java historical_tolls 249 $maxcarid /datadrive2/250.tolls.raw ; \
-time java create_carsandtimes /datadrive2/250.combined 10 /datadrive2/250.carsandtimes ; \
-time java create_carstoreplace /datadrive2/250.carsandtimes /datadrive2/250.carstoreplace ; \
-time java replacecars /datadrive2/250.carstoreplace /datadrive2/250.combined /datadrive2/250.replaced.part ; \
-mkdir /datadrive2/250.temp ; \
-mv /datadrive2/250.replaced.part* /datadrive2/250.temp ; \
-time java combine_after_replace /datadrive2/250.temp /datadrive/3h250x.dat ; \
-time java fixtolls /datadrive2/250.tolls.raw /datadrive/3h250x.dat /datadrive/3h250x.tolls.dat
+maxcarid=0 ; cd /datadrive/java/LRDataGen/out/production/LRDataGen/ ; \
+time maxcarid=$(java datacombine /datadrive/tmp_clean /datadrive2/3.combined) ; \
+time java historical_tolls 3 $maxcarid /datadrive2/3.tolls.raw ; \
+time java create_carsandtimes /datadrive2/3.combined 10 /datadrive2/3.carsandtimes ; \
+time java create_carstoreplace /datadrive2/3.carsandtimes /datadrive2/3.carstoreplace 3 ; \
+time java replacecars /datadrive2/3.carstoreplace /datadrive2/3.combined /datadrive2/3.replaced.part ; \
+mkdir /datadrive2/3.temp ; \
+mv /datadrive2/3.replaced.part* /datadrive2/3.temp ; \
+time java combine_after_replace /datadrive2/3.temp /datadrive/3h3x.dat ; \
+time java fixtolls /datadrive2/3.tolls.raw /datadrive/3h3x.dat /datadrive/3h3x.tolls.dat
 ```
 Timings for a 3 xway run:
 ```
