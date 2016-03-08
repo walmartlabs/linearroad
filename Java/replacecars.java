@@ -12,7 +12,7 @@ import java.util.HashMap;
  * BUT, also write out each xway to a separate file to combine later in time order
  * Usage: java replacecars <carstoreplace_file> <combined_file>  <outfile_base_name>
  */
-public class replacecars_1 {
+public class replacecars {
     public static void main(String[] args) throws Exception {
         File carsToReplaceFile = new File(args[0]);
         File combinedFile = new File(args[1]);
