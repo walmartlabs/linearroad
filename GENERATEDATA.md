@@ -76,7 +76,7 @@ for( my $x=0; $x < $numberOfExpressways; $x++){
         writeToLog ( $logfile, $logvar, "Linear road run number: $x");
         system ("perl linear-road.pl --dir=$dir");
         rename( $dir."/cardatapoints.out.debug" , $dir."/cardatapoints$x.out.debug" );
-        rename( $dir."/cardatapoints.out$x" , $dir."/$hostname$x" );
+        rename( $dir."/$cardatapoints" , $dir."/$hostname$x" );
 }
 
 sub logTime {
