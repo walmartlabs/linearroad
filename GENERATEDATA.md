@@ -32,23 +32,34 @@ Install the 32-bit compatibility pack (for original MITSIM generator to work on 
 sudo yum -y install compat-libstdc++-296.i686
 ```
 
+Install gcc and make if not already installed.
+```
+sudo yum -y install gcc make
+```
+Install the appropriate Perl modules for mitsim.
+```
+sudo perl -MCPAN -e "install Math::Random"
+```
+Let CPAN do automatic configuration: [yes] or [Enter].
+
 ### Running the original data generator script
 
 (Again, raw file generation can be parallelized by copying mitsim files and folders to n machines after modifying the mitsim files.) 
 To prepare the files for raw data creation edit three files:
 `mitsim.config`, `linear-road.pl`, and `Duplicates.pl`.
 
-In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing and select any number of expressways based on free disk-space (1 xway ~ 1GB).
+In `mitsim.config`: change the `directoryforoutput` to a directory of your choosing and select any `numberofexpressways` based on free disk-space (1 xway ~ 1GB).  The only lines necessary are `directoryforoutput` and `numberofexpressways` the rest can be deleted.  
 
 NOTE: remove any trailing blank lines in `mitsim.config` to avoid a Perl `use of uninitialized value` errors from `Duplicates.pl`.
 
-In `linear-road.pl` you have can control a variety of parameters but the only ones we've adjusted are `my $cars_per_hour`, increasing the value to 1000, and `my $endtime`, setting to however long we want the simulation to run.
+In `linear-road.pl` you have can control a variety of parameters but the only one we adjust is `my $cars_per_hour`, increasing the value to 1000.  `my $endtime` can also be adjusted if shorter or longer simulation times are desired.
 
 In `DuplicateCars.pl`:
-1. Remove EVERYTHING between the lines `close ( PROPERTIES); ` AND `sub logTime( {` EXCEPT the code section below, making the following changes:
-  1. add `my $hostname = hostname`
-  2. change the last `rename` to use `hostname` with an integer suffix (to help with data organization if you're generating on multiple macines):
+1. Remove EVERYTHING (there are quite a few lines) between the lines `close ( PROPERTIES ); ` AND `sub logTime( {` leaving only the lines below and also making the following changes:
+  1. add `my $hostname = hostname` after the `close ( PROPERTIES );`
+  2. modify the last `rename` line to use `hostname` with an integer suffix (to help with data organization if you're generating on multiple macines) and to rename from `cardatapoints.out$x` : 
 2. Add `use Sys::Hostname` to the top of the file
+  1. Optionally remove the `use DBI;` line
 ```
 use Sys::Hostname
 ...
@@ -65,9 +76,7 @@ for( my $x=0; $x < $numberOfExpressways; $x++){
         writeToLog ( $logfile, $logvar, "Linear road run number: $x");
         system ("perl linear-road.pl --dir=$dir");
         rename( $dir."/cardatapoints.out.debug" , $dir."/cardatapoints$x.out.debug" );
-        rename( $dir."/cardatapoints.out$x" , $dir."/$cardatapoints" );
-
-        rename( $dir."/$cardatapoints" , $dir."/$hostname$x" );
+        rename( $dir."/cardatapoints.out$x" , $dir."/$hostname$x" );
 }
 
 sub logTime {
