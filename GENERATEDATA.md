@@ -5,7 +5,7 @@
 
 For the creation of re-entrant cars, using the previous v.1 of our scripts method--which was still faster than going to a database--took ~30+ hours to create ~200K replacements from a set of ~780K "carsandtimes" for a 50 expressway dataset.  The newest method will produce the same number of replacements from the same ~780K cars in seconds.
 
-Making the same logic changes to the original Python code would have yielded orders of magnitude benefits in run-times as well.  The Java version will be a few constant factors faster-- ~2 to 3.  
+Making the same logic changes to the original Python code would have yielded orders of magnitude benefits in run-times as well.  The Java version will be a constant factor faster, ~2 to 3.  
 
 Java src can be found in the Java directory.  The Java code was written using IntelliJ 15, Community Edition, which supports a very nice vi mode.
 
