@@ -10,7 +10,7 @@ One way to reduce the memory footprint is to reduce the historical tolls files t
 The creation of expected output and the comparison to output created by any potential solution are two separate steps.
 
 To create the file of expected output:
-`java ValidateMT <LR input file> <num xways> <toll file> <output file>`
+`java ValidateMTBQ <LR input file> <num xways> <toll file> <output file>`
 
 To run a comparison of the expected output with the output of a streaming product run:
 `java CompareFiles <validator output> <product output>`
