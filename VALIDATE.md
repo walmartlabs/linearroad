@@ -20,3 +20,4 @@ The expected output is loaded into a Java HashMap and the product output is read
 
 Various solutions using various database backends to store state while generating the expected output were used but all were orders of magnitude slower.  When time permits further work may be done to increase the xway sizes that can be validated in a timely manner, "timely" being the key word. 
  
+NOTE: Validation of 20xway set fails due to lack of memory on a 28GB machine.  More revisions to come.
