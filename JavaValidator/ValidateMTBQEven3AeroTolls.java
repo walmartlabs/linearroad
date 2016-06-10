@@ -16,24 +16,21 @@ import java.util.concurrent.LinkedBlockingDeque;
  * By the seconds, and send when all have finished each second
  * Trim the segment maps to only hold the most current minute and the past 5 minutes
  * Use Aerospike to hold all tolls
- * Usage: time java ValidateMT <datafile> <num XWays> <tollfile> <outputfile>
+ * Usage: time java ValidateMTBQEven3AeroTolls <datafile> <num XWays> <tollfile>
  */
 public class ValidateMTBQEven3AeroTolls extends Thread {
-    public static HashMap<Integer, ArrayList<Integer>> tolls;
     public static HashMap<String, Integer> historical;
 
     AerospikeClient client;
     WritePolicy policy;
 
     static {
-        tolls = new HashMap<>();
         historical = new HashMap<>();
     }
 
     private LinkedBlockingDeque<String> q;
     private LRReader r;
     private boolean paused;
-    private boolean running;
     private PrintWriter writer;
     private PrintWriter writerDEBUG;
     private long tollAssessmentCountDEBUG;
@@ -72,7 +69,7 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
         }
 
         /**
-         * ValidateMTBQEven2 thread will notify LRReader that it is done with its set of records.
+         * ValidateMTBQEven3... thread will notify LRReader that it is done with its set of records.
          * When the number of notifications equals the number of threads, LRReader will restart.
          */
         public void notifyDone() {
@@ -93,7 +90,8 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
         }
 
         /**
-         * This needs to somehow run periodically because if the processing actually finishes before the reader is done then it gets stuck.
+         * This needs to somehow run periodically because if the processing actually finishes before the reader is done
+         * then it gets stuck.
          */
         public void checkRestart() {
             for (ValidateMTBQEven3AeroTolls rt : lrs.values()) {
@@ -218,7 +216,6 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
 
         q = new LinkedBlockingDeque<>();
         this.r = r;
-        running = true;
         paused = false;
         this.xway = xway;
         this.dir = dir;
@@ -256,10 +253,6 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
         }
     }
 
-    public void kill() {
-        running = false;
-    }
-
     public boolean isPaused() {
         return paused;
     }
@@ -292,17 +285,6 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
                         break;
                     case 2:
                         type2Seen++;
-                        /*if (mt.get("time") != currTime) {
-                            for (String s : savedType2s.get(currTime)) {
-                                t2(createMT(s.split(",")));
-                            }
-                        }
-                        if (!savedType2s.containsKey(mt.get("time"))) {
-                            savedType2s.put(mt.get("time"), new ArrayList<String>());
-                        }
-                        savedType2s.get(mt.get("time")).add(line);
-                        currTime = mt.get("time");
-                        */
                         t2(mt);
                         break;
                     case 3:
@@ -311,11 +293,6 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
                         break;
                 }
             }
-            //reader.close();
-            // Clean up and process any remaining type 2's (usually time 10784)
-            //for (String s : savedType2s.get(currTime)) {
-            //   t2(createMT(s.split(",")));
-            //}
         } catch (InterruptedException e) {
             System.err.println(e);
         } finally {
@@ -354,7 +331,7 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
      * @return The segment key
      */
     private String getOrCreateSeg(Map<String, Integer> mt) {
-        String segKey = mt.get("seg") + "-" + (mt.get("time") / 60 + 1);  // Oh, duh, of COURSE you need the parens, otherwise you get time/60 (i.e. 0) + 1 => 01, not 1
+        String segKey = mt.get("seg") + "-" + (mt.get("time") / 60 + 1);  // Oh, duh, of COURSE you need the parens
         // Create a new record for a particular seg+min key for this xway+dir if it doesn't exist
         if (!segSumSpeeds.containsKey(segKey) && !segSumNumReadings.containsKey(segKey) && !segCarIdSet.containsKey(segKey)) {
             //segSumSpeeds.put(segKey, mt.get("speed"));
@@ -686,7 +663,7 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
 
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
-            System.out.println("Usage: java ValidateMT <main data file> <num xways> <toll file>");
+            System.out.println("Usage: java ValidateMTBQEven... <main data file> <num xways> <toll file>");
             System.exit(1);
         }
 
