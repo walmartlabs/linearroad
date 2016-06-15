@@ -503,7 +503,7 @@ public class ValidateMTBQEven3AeroTolls extends Thread {
         }
         //System.out.printf("Tolls for %d: %d\n", c.carId, tollList.size());
         tollList.add(time);  // The time
-        tollList.add(c.lastToll);  // The carId
+        tollList.add(c.lastToll);  // The last toll
         Bin bin = new Bin("tolls", tollList);
         client.put(policy, key, bin);
     }
