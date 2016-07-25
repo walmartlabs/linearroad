@@ -1,6 +1,12 @@
 # How to generate data files
 
 ## Notes
+2016-07-25: See https://github.com/walmart/LinearGenerator for an updated data generator that only requires Java.  The tolls file would still have to be created and cleaned separately:
+
+`time java historical_tolls <num xways> <max carid> <output file>`
+
+`time java fixtolls <raw toll file> <final_notifications_data> <final toll file>`
+
 2016-03-07: Initially a few cleansing and combination scripts were rewritten in C which yielded tremendous speed benefits.  Run-time for most required steps were halved or reduced to a third of the original time.  Then, the scripts were rewritten in Java (8u73) and surprisingly the performance was even faster.  All the scripts were rewritten in Java.  Now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours, potentially 12 hours.  A database is no longer necessary.  Generation of raw data files also no longer requires a database.  Details, scripts, and usage follow below.
 
 For the creation of re-entrant cars, using the previous 0.1 version of our scripts, which was still faster than going to a database, took ~30+ hours to create ~200K replacements from a set of ~780K "carsandtimes" for a 50 expressway dataset.  The newest method will produce the same number of replacements from the same ~780K cars in seconds.
