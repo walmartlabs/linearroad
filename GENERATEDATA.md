@@ -1,7 +1,7 @@
 # How to generate data files
 
 ## Notes
-2016-07-26: The toll files is automatically created and cleaned using https://github.com/walmart/LinearGenerator.
+2016-07-26: The toll file is automatically created and cleaned using https://github.com/walmart/LinearGenerator.
 
 2016-07-25: See https://github.com/walmart/LinearGenerator for an updated data generator that only requires Java.  The tolls file would still have to be created and cleaned separately:
 
