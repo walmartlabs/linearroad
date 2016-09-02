@@ -3,14 +3,20 @@
 ## Notes
 
 ## Generating the Validation File (or the expected output)
-The original validator was written in Python and was a collaborative effort based on some of the idiosyncracies in the data as found by the various vendor-participants.  It is all in-memory, using Python dictionaries, so the number of expressways that can be validated is limited by available memory.  The original was also single-threaded.  
+The original validator was written in Python and was a collaborative effort based on some of the idiosyncracies in the data as found by the various vendor-participants.  The original Python validator was all in-memory, using Python dictionaries, so the number of expressways that can be validated was limited by available memory.  The original was also single-threaded.  
 
 One technique to reduce the memory footprint for validation is to reduce the historical tolls files to only those records that actually match a query within the main data file.  The newer Java version does this automatically, while also being multi-threaded.
+
+The Java version is found here: https://github.com/walmart/linearroad/tree/master/JavaValidator
+
+The current Java version uses Aerospike to hold the toll state for all cars. Initial testing showed using Aerospike for this purpose allowed for validation file creation in less time, for large sets, in less time than even using Java's HashMap. 
 
 The creation of expected output and the comparison to output created by any potential solution are two separate steps.
 
 To create the file of expected output:
-`java ValidateMTBQ<*additional suffixes*> <LR input file> <num xways> <toll file>`
+`time java ValidateMTBQEven3AeroTolls <datafile: path> <num XWays: int> <tollfile: path>`
+
+MT (Multi-Threaded) BQ (Blocking Queue) Even (wait till all threads have processed each second before proceeding) Areo (uses AeroSpike) Tolls (cleans the toll file)
 
 Output will be a file named `out` in the current directory.
 
