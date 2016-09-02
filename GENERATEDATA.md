@@ -11,11 +11,11 @@
 
 2016-03-07: Initially a few cleansing and combination scripts were rewritten in C which yielded tremendous speed benefits.  Run-time for most required steps were halved or reduced to a third of the original time.  Then, the scripts were rewritten in Java (8u73) and surprisingly the performance was even faster.  All the scripts were rewritten in Java.  Now a 250 expressway data set can be combined, modified, and completely prepped in less than 24 hours, potentially 12 hours.  A database is no longer necessary.  Generation of raw data files also no longer requires a database.  Details, scripts, and usage follow below.
 
-For the creation of re-entrant cars, using the previous 0.1 version of our scripts, which was still faster than going to a database, took ~30+ hours to create ~200K replacements from a set of ~780K "carsandtimes" for a 50 expressway dataset.  The newest method will produce the same number of replacements from the same ~780K cars in seconds.
+For the creation of re-entrant cars, using the previous 0.1 version of the scripts, which was still faster than going to a database, took ~30+ hours to create ~200K replacements from a set of ~780K "carsandtimes" for a 50 expressway dataset.  The newest method will produce the same number of replacements from the same ~780K cars in seconds.
 
-Making the same logic changes to the original Python code would have yielded orders of magnitude benefits in run-times as well.  The Java version will likely still be a constant factor faster, ~2 to 3, than the Python version.  
+Making the same logic changes to the original Python code would have yielded orders of magnitude benefits in run-times as well.  The Java version will likely still be a constant factor faster, by ~2 to 3x, than the Python version.  
 
-Java src can be found in the Java directory.  The Java code was written using IntelliJ 15, Community Edition.  The original Python src was written in VI.
+The Java code can be found in the Java directory.
 
 To create the datafiles first download the data generator from http://www.cs.brandeis.edu/~linearroad/tools.html and follow the instructions below.
 
@@ -100,7 +100,7 @@ The raw data files will be found under the `directoryforoutput` as configured in
 
 The original script `DuplicateCars.pl` handled the process of combining the multiple raw data files along with creating re-entrants and the toll file but it could not handle, in a reasonable amount of time, large numbers of expressways.  The self-join query mentioned in the general introduction explains one of the bottlenecks--the progressive slowdown of the self-join query that finds re-entrants.
 
-Everthing after raw file creation was re-written, along with the addition of some data cleansing steps.  Python was used first.  Then C and Java.  Java (8u73) turned out to be the fastest for these scripts.
+Everything after raw file creation was re-written, along with the addition of some data cleansing steps.  Python was used first.  Then C and Java.  Java (8u73) turned out to be the fastest for these scripts.
 
 ### Creating a single combined data file
 As stated in the README, datasets of arbitrary sizes can be generated on a single machine or by parallelizing the expressway generation on multiple machines.  But, after generation, these must be cleaned (if desired) and combined.  
@@ -115,7 +115,7 @@ mv <temp_outfile3> <clean_file>
 ```
 The raw files above can be cleansed in parallel on n machines.
 
-On each machine, or a single machine, place the raw files in a new directory and from the directory with the java classes run:
+On each machine, or a single machine, place the raw files in a new directory and from the directory with the Java classes run:
 ```
 for f in $(ls <dir_of_raw_files>) ; do time java dataval $f t1 ; time java datarm2 t1 t2 ; time java datamakeexit t2 t3 ; mv t3 $f.clean ; done
 ```
@@ -163,11 +163,11 @@ Finally, clean the generated tolls to match the tuples present in the position r
 ```
 time java fixtolls <infile (raw_toll_file)> <infile (final_data_file)> <outfile (final_toll_file)>
 ```
-Make sure you have enough space on your hard drives to handle all files and temp files.  Each xway will generate ~1GB of position data and ~300MB of toll data.  Using multiple disks is recommended for temp and final file output.  I.e. for a 250 xway set: 250 GB for individual clean files, 250GB for the combined clean file, 82-7GB for the raw toll file, 250GB for the split replaced parts, 250GB for the final file, and 82-7GB for the final toll file for a total of roughly 1.5 TB of free space to generate a 250 xway set without deleting intermediate files.
+Make sure you have enough space on your hard drives to handle all files and temp files.  Each xway will generate ~1GB of position data and ~300MB of toll data.  Using multiple disks is recommended for temp and final file output.  I.e. for a 250 xway set: 250 GB for individual clean files, 250GB for the combined clean file, 82-87GB for the raw toll file, 250GB for the split replaced parts, 250GB for the final file, and 82-87GB for the final toll file for a total of roughly 1.5 TB of free space to generate a 250 xway set without deleting intermediate files.
 
-All the commands (after having a directory of cleaned files) can be combined into a single line bash call as shown below.
+All the commands (after having a directory of cleaned files) can be combined into a single-line bash call as shown below.
 `datadrive` and `datadrive2` are my data directories.
-NOTE: I set an env variable to hold the maxcarid, `cd` into the directory containing the java class files, and use full paths for all files and directories.
+NOTE: I set an env variable to hold eventually hold the maxcarid, `cd` into the directory containing the Java class files, and use full paths for all files and directories.
 ```
 maxcarid=0 ; cd /datadrive/java/LRDataGen/out/production/LRDataGen/ ; \
 time maxcarid=$(java datacombine /datadrive/tmp_clean /datadrive2/3.combined) ; \
