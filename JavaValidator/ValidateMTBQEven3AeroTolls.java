@@ -10,13 +10,22 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Created by Sung Kim on 3/8/2016.
- * Multiple Threads
- * Use a BlockQueue to handle issues with some threads getting ahead of others.
- * But, no longer need to create split files.
- * By the seconds, and send when all have finished each second
- * Trim the segment maps to only hold the most current minute and the past 5 minutes
- * Use Aerospike to hold all tolls
+ * Use multiple threads.
+ * Use a BlockingQueue to handle issues with some threads getting ahead of others.
+ * Using the BlockingQueue means longer needing to create split files.
+ * Process by the 'second's, and send when all have finished each second.
+ * Trim the segment maps to only hold the most current minute and the past 5 simulation minutes.
+ * Use Aerospike to hold all tolls.
  * Usage: time java ValidateMTBQEven3AeroTolls <datafile> <num XWays> <tollfile>
+ * FYI:
+ * MT (MultiThreaded)
+ * BQ (BlockingQueue)
+ * Even (every thread finished processing the current second before moving on to the next second)
+ * 3 (version)
+ * AeroTolls (use Aerospike to hold the global toll information)
+ * Non-Aerospike, or "other" database versions can be created by simply replacing the Aerospike portions with
+ * a different database of choice. A Java Map can also be used but this limits the number of expressways for which a
+ * validation file can be created.
  */
 public class ValidateMTBQEven3AeroTolls extends Thread {
     public static HashMap<String, Integer> historical;

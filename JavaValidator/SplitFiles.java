@@ -10,8 +10,7 @@ import java.util.Map;
  * Take an input file and split into n*2 files for multi-thread processing
  * The bulk of the work is to write types > 0 to the proper file.
  * We do this by storing the xway+dir of carids and assigning lines to the proper files accordingly.
- * Why didn't I just assign the xway+dir while combining raw files?  The dir factor?
- * All this should be moot if I can shoot records to individual threads, if that's faster.
+ * Using the BlockingQueue version obviates this file splitting.
  */
 public class SplitFiles {
     // Have auto-detection of number of xways

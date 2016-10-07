@@ -6,7 +6,10 @@ import java.util.HashMap;
 
 /**
  * Created by Sung Kim on 3/11/2016.
- * Create a file with only those tolls that actually show up in the data file
+ * Create a file with only those tolls that actually show up in the data file.
+ * This makes creating a Validation file much faster.
+ * If there's no desire to test the ability of a data store then using a cleaned file to run the actual tests
+ * for candidate Streaming data processing systems would work just as well.
  */
 
 public class CreateMatchingTolls {

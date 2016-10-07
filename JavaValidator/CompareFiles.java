@@ -5,7 +5,8 @@ import java.util.HashMap;
 
 /**
  * Created by Sung Kim on 5/30/2016.
- * Compare the output from a product run versus the expected output from the Validator
+ * Compare the output from a product run versus the expected output from the Validator.
+ *
  * Usage: java CompareFiles <validator output> <product output>
  * Caveat: This version will only work up to the limits of the memory of the machine on which it's run,
  */
