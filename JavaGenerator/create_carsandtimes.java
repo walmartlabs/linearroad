@@ -14,12 +14,16 @@ import java.util.HashSet;
  * java create_carsandtimes <combined file> <overlap factor: 0 - 100> <carsandtimes_outfile>
  */
 public class create_carsandtimes {
+
     public static void main(String[] args) throws Exception {
+
         File infile = new File(args[0]);
         int overlap = Integer.parseInt(args[1]);
         File outfile = new File(args[2]);
+
         HashMap<Integer, HashMap<String, Integer>> cars = new HashMap<>();
         HashSet<Integer> rejects = new HashSet<>();
+
         BufferedReader reader = new BufferedReader(new FileReader(infile));
         String line;
         String[] tokens;
