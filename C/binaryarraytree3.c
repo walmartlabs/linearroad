@@ -212,8 +212,19 @@ void add(int *arr, int val, size_t curr_len)
         printf("======\nPlaced %d\n======\n", val);
 }
 
-int find(int *arr, int val, size_t size)
+// Walk the array to see if value exists.
+int find(int *arr, int val, size_t curr_len)
 {
+    int i = 1;
+    while(i <= curr_len + 1)
+    { 
+        if(val == arr[i])
+            return i; 
+        else if(val < arr[i])
+            i = i * 2;
+        else if(val > arr[i])
+            i = i * 2 + 1;
+    }
     return -1;
 }
 
@@ -250,6 +261,18 @@ int main(int argc, char* argv[])
     } 
     
     printarr(arr, curr_len + 1); // We need to +1 to curr_len to print out the last array member since we're starting from index 1.    
+
+
+    // Test finding
+    printf("Find 0: %d\n", find(arr, 0, curr_len));
+    printf("Find 5: %d\n", find(arr, 5, curr_len));
+    printf("Find 9: %d\n", find(arr, 9, curr_len));
+    printf("Find 20: %d\n", find(arr, 20, curr_len));
+    printf("Find 25: %d\n", find(arr, 25, curr_len));
+    for (i = 0 ; i < curr_len + 1 ; i++)
+    {
+        printf("Find %d: %d\n", i, find(arr, i, curr_len));
+    }
 
     //free(arr);
 
