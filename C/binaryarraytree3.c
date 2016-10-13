@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "doublearr.h"
+#include "doublearr.h" // This is really a set of array utils.
 
 #define DEBUG 0
 
@@ -24,7 +24,8 @@ int left_or_right(int index);
 // 1. Add to last position
 // 2. if even index: Walk up
 // 3. At top, walk down
-// 4. if odd index: Walk up, and check ALL grand-parents
+// 4. if odd and immediate parent is even: check ALL grand-parents
+// 5. Do sweeps to make sure all edge leaves are correctly placed.
 
 void swap(int *arr, int i, int j)
 {
@@ -33,22 +34,41 @@ void swap(int *arr, int i, int j)
     arr[j] = temp;
 }
 
-int left_or_right(int index)
-{
-    int orig_i = index;
+// Convenience function to get the depth of a tree.
+int get_depth(int curr_len)
+{    
+    int index = curr_len;
     int depth = 0;
     while (index > 0)
     {
         index /= 2;
         depth++;
     }  
+    return depth; 
+}
+
+// Convenience method to get the width of a tree.
+// For printing the tree.
+int get_width(int curr_len)
+{
+    // Get the depth first
+    int depth = 0; 
+    depth = get_depth(curr_len);
+    // The width will be 2^depth
+    return 2 << (depth-1);  // -1 because 2^1 is already accounted for by simply 2.
+}
+
+int left_or_right(int index)
+{
+    int depth = 0;
+    depth = get_depth(index);
     int max_i = 2 << (depth-1); // Power of 2. 
     int min_i = max_i/2; // Min for depth is Power of 2 / 2.
     int half = max_i/4;
     if (DEBUG)
         printf("depth: %d, max_i: %d, min_i: %d, half: %d\n", depth, max_i, min_i, half);
     //max_i--; // Actual max is Power of 2 - 1, but we don't need it.
-    if (orig_i < min_i + half)
+    if (index < min_i + half)
         return 1; // Left
     else
         return 2; // Right
@@ -228,6 +248,80 @@ int find(int *arr, int val, size_t curr_len)
     return -1;
 }
 
+void printbinarytree(int *arr, size_t curr_len)
+{
+    // Need to indent root up to 2 * depth
+    //        1
+    //     -     -   
+    //    0       2
+
+    int depth = 0;
+    int width = 0;
+    depth = get_depth(curr_len);
+    width = get_width(curr_len);
+    // When we print we need enough space to print all, COMPLETE, sub-trees. 
+    // Each leave takes 5, so width * 5.
+    // Our initial padding is thus 5 * width.
+    if (DEBUG)
+        printf("printbinarytree():curr_len:%d\n", curr_len);
+    // Indent 2 * depth for root
+    int padding = 0;
+    int padding_between = 0; // The padding between numbers on the same row.
+    //padding += 2 * depth;
+    padding += 2 * width;
+    int curr_depth = 0;
+    int i, j, k;
+    i = 1; // We start our walk from index 1.
+    while (1)
+    {
+        // Print the padding initial.
+        for (j = 0 ; j < padding ; j++) printf(" ");    
+        // For even indices, print lines after the value to align under the parent. 
+        if (i % 2 == 0)
+        {
+            // Print the val.
+            printf("%d", arr[i++]);
+            for (j = 0 ; j < padding_between-1 ; j++) printf("-");    
+            printf("/");
+        }
+        // Print the padding between if any.
+        //for (j = 0 ; j < padding_between ; j++) printf(" ");    
+        // For odd, print lines before the value to align with parent.
+        if (i % 2 == 1) //&& (i > 1))
+        {
+            if (i > 1) printf("\\");
+            for (j = 0 ; j < padding_between-1 ; j++) printf("-");    
+            // Print the val.
+            printf("%d", arr[i++]);
+            // Add padding aftewards
+            if (i > 1) for (j = 0 ; j < padding_between ; j++) printf(" ");    
+        }
+       // Print the lines if any. 
+        if (i < curr_len)
+        {    
+            if(get_depth(i) > curr_depth)
+            {
+                //if (DEBUG)
+                    //printf("Depth increased from %d to %d\n", curr_depth, get_depth(i));
+                curr_depth = get_depth(i); // Move down a level.
+                // Create the correct padding between for this depth.
+                padding_between = padding/2 - 1 ; 
+                // Decrease the initial padding by 1/2 each level. 
+                padding /= 2;
+                printf("\n");
+            } 
+            //if (DEBUG)
+                //printf("printbinarytree():curr_depth:%d\n", curr_depth); 
+        }
+        else
+        {
+            printf("\n");
+            return;
+        }
+    }
+}
+    
+
 // Test
 int main(int argc, char* argv[])
 {
@@ -262,6 +356,7 @@ int main(int argc, char* argv[])
     
     printarr(arr, curr_len + 1); // We need to +1 to curr_len to print out the last array member since we're starting from index 1.    
 
+    printbinarytree(arr, curr_len);
 
     // Test finding
     printf("Find 0: %d\n", find(arr, 0, curr_len));
