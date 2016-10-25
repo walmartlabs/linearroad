@@ -7,19 +7,21 @@ import java.util.HashSet;
 
 /**
  * Created by Sung Kim on 3/2/2016.
- * Create the carsandtimes after reading the single combined file.
+ *
+ * Create the carsandtimes after reading the single, clean, combined file.
  * The carsandtimes is simply each carid with its entry time, its exit time, and its xway.
- * This will be used by carstoreplace to create cars (by removing others) that re-enter the simulation on a different
- * xway sometime later in the simulation.
+ * This will be used by create_carstoreplace.java to create cars (by removing others) that re-enter the simulation on
+ * a different xway, sometime later in the simulation.
+ *
  * This is important as it prevents easy optimization via the assumption that a car's data can be localized to a single
  * xway-dir.
  *
  * We're only choosing cars that will _potentially_ be re-entrant based on a percentage of the total cars.
  * Thus, if the overlap factor is 10, then ~10% of the cars will be placed into the carsandtimes files.
  *
- * ********************************************************
- * This only creates the carsandtimes NOT the carstoreplace
- * ********************************************************
+ * *********************************************************
+ * This only creates the carsandtimes NOT the carstoreplace.
+ * *********************************************************
  * java create_carsandtimes <combined file> <overlap factor: 0 - 100> <carsandtimes_outfile>
  */
 public class create_carsandtimes {

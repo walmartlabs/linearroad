@@ -11,9 +11,10 @@ import subprocess
 #
 # NOTE: Modifying the Python to NOT use a database would be faster. The Java classes to replicate as Python
 # scripts would be:
-# create_carsandtimes.java,
-# create_carstoreplace.java,
-# and combine_after_replace.java.
+# 1) create_carsandtimes.java,
+# 2) create_carstoreplace.java,
+# 3) replacecars.java,
+# and 4) combine_after_replace.java.
 
 file = sys.argv[1]  # not used, because
 datadir = sys.argv[2]  # no trailing '/'

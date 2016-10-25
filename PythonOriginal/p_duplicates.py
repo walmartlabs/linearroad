@@ -4,7 +4,7 @@ import random, sys
 # This script should be called by combine.py
 #
 # NOTE: This is really slow too. For best results create Python versions of:
-# create_carsandtimes.java, create_carstoreplace.java, and combine_after_replace.java.
+# create_carsandtimes.java, create_carstoreplace.java, replacecars.java and combine_after_replace.java.
 
 dir = sys.argv[1] # Ensure there is no trailing '/' when calling from combine.py.
 f1 = open(dir + '/carsandtimes.csv')
