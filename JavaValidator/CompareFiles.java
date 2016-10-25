@@ -7,10 +7,17 @@ import java.util.HashMap;
  * Created by Sung Kim on 5/30/2016.
  * Compare the output from a product run versus the expected output from the Validator.
  *
+ * We check existence of an expected line of output and then check the values of that output.
+ *
+ * We don't check for extra lines in the output.
+ *
  * Usage: java CompareFiles <validator output> <product output>
- * Caveat: This version will only work up to the limits of the memory of the machine on which it's run,
+ * Caveat: This version will only work up to the limits of the memory of the machine on which it's run.
  */
 public class CompareFiles {
+    /**
+     * A convenience class to help us work with the data.
+      */
     private static class KVTuple {
         String key;
         String value;
@@ -26,9 +33,16 @@ public class CompareFiles {
         }
     }
 
+    /**
+     * Based on the type of the input line, return the properly deconstructed key and values.
+     * This de-multiplexes the multiplexing of all types into a single data line.
+     * @param tokens
+     * @return
+     */
     private static KVTuple getKVFromType(String[] tokens) {
         String key = null;
         String value = null;
+        // [], square brackets, represent the "key" for each Type of validator and solution output.
         // [0, carid, time], proc_time, lav, toll
         // [1, time], proc_time, [xway, acc_seg, dir, carid]
         // [2, time], proc_time, toll_time, [qid], balance
@@ -55,12 +69,20 @@ public class CompareFiles {
         return new CompareFiles.KVTuple(key, value);
     }
 
+    /**
+     * Create a KVTuple object from a parse line of validator output and place into the validator output Map.
+     *
+     * @param output
+     * @param tokens
+     */
     private static void insertType(HashMap<String, String> output, String[] tokens) {
         CompareFiles.KVTuple kv = getKVFromType(tokens);
         output.put(kv.key, kv.value);
     }
 
     /**
+     * Take the file created by the Validator and upload it, as the proper types, into a passed-by-reference Map.
+     *
      * @param output The HashMap to hold the validator output split into key/value
      * @param file   The validator output file
      */
@@ -82,6 +104,16 @@ public class CompareFiles {
         return numValidatorRecords;
     }
 
+    /**
+     * The bulk of the validation will occur here.
+     * Based on the values of a given key, which tests existence (the presence of the key means the solution output
+     * has some expected output), test the values against the expected values.
+     *
+     * @param vOutput
+     * @param kv
+     * @param type
+     * @return
+     */
     private static long checkType(HashMap<String, String> vOutput, KVTuple kv, String type) {
         String vValue = vOutput.get(kv.key);
         //System.out.println("kv: " + kv);
@@ -125,6 +157,13 @@ public class CompareFiles {
         return 1;
     }
 
+    /**
+     * Just a wrapper to checkType(). More functionality can be added, i.e. more types of checks, here.
+     *
+     * @param vOutput
+     * @param line
+     * @return
+     */
     private static long checkLine(HashMap<String, String> vOutput, String line) {
         String[] tokens;
         tokens = line.split(",");
@@ -132,10 +171,11 @@ public class CompareFiles {
     }
 
     /**
-     * Take productOutput file and find the corresponding keys (and values) in the built up validatorOutput hash map
+     * Take productOutput file and find the corresponding keys (and values) in the built up validatorOutput Map.
+     * This is the main function that starts validation after a validator-produced file is uploaded.
      *
-     * @param validatorOutput   The filled HashMap of expected output created by the Validator
-     * @param productOutputFile The fileName of the product output
+     * @param validatorOutput   The filled HashMap of expected output created by the Validator.
+     * @param productOutputFile The fileName of the product output.
      */
     private static long compareProductOutput(HashMap<String, String> validatorOutput, String productOutputFile) {
         BufferedReader reader;
@@ -152,8 +192,12 @@ public class CompareFiles {
         return recordCount;
     }
 
+    /**
+     * Run the validator.
+     * @param args
+     */
     public static void main(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 2 || args.length > 2) {
             System.out.println("Usage: java CompareFiles <validator output> <product output>");
             System.exit(1);
         }

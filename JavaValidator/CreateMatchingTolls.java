@@ -6,21 +6,35 @@ import java.util.HashMap;
 
 /**
  * Created by Sung Kim on 3/11/2016.
+ *
  * Create a file with only those tolls that actually show up in the data file.
  * This makes creating a Validation file much faster.
- * If there's no desire to test the ability of a data store then using a cleaned file to run the actual tests
- * for candidate Streaming data processing systems would work just as well.
+ * If there's no desire to test the ability of a data store to hold large amounts of data then using a cleaned file
+ * to run the actual tests for candidate streaming engines would work just as well.
  */
 
 public class CreateMatchingTolls {
+
+    /**
+     * Take the mainfile, the tollfile, and a desired output file and create a toll file that only has corresponding
+     * lines in the mainfile.
+     *
+     * @param mainFile
+     * @param tollFile
+     * @param newFile
+     * @throws Exception
+     */
     public static void createMatchingTollsFile(String mainFile, String tollFile, String newFile) throws Exception {
         File datafile = new File(mainFile);
         File tollfile = new File(tollFile);
         File newtfile = new File(newFile);
 
-        HashMap<String, Integer> t3s = new HashMap<>();     // carid, day, xway -> t[2], t[14], t[4]
+        // The fields of interest from the line of mainfile input.
+        // carid, day, xway -> t[2], t[14], t[4]
+        // We could use a Set instead as we don't care about values.
+        HashMap<String, Integer> t3s = new HashMap<>();
 
-        // Load type 3's
+        // Load Type 3's from the mainfile into a Map.
         BufferedReader reader = new BufferedReader(new FileReader(datafile));
         String line;
         String[] tokens;
@@ -34,7 +48,8 @@ public class CreateMatchingTolls {
         }
         reader.close();
 
-        // Find actual matching lines in the tolls files and write those out to a new file
+        // Now, reading through the tollfile find the actual matching lines
+        // and write these out to a new file.
         reader = new BufferedReader(new FileReader(tollfile));
         PrintWriter writer = new PrintWriter(newtfile);
         while ((line = reader.readLine()) != null) {
