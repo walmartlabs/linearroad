@@ -1,10 +1,15 @@
 import time, sys, MySQLdb
 
 # datafixtype3.py: 
-#  run AFTER combine.py
-#  prints cleaned results to stdout
+# Run AFTER combine.py.
+# This fixes the toll file to have matching xways with the main data file.
+# Otherwise, the Type 3 requests from the main data file would not match the randomly generated toll file.
+# Prints cleaned results to stdout.
 # Usage: python datafixtype3.py <post-processed .dat file> <historical-toll.out file> <new historical file>
 # Note: the <post-processed .dat file> is no longer needed and can just be any file for now.
+#
+# NOTE: Again, this file may be better if re-written in the Java version, 'fixtolls.java.'
+
 
 db = MySQLdb.connect(db="test",user="root",host="127.0.0.1")
 c = db.cursor()
@@ -33,10 +38,10 @@ c.execute("SELECT carid, day, xway FROM input WHERE type = 3")
 rc = c.rowcount
 count = 0
 for i in xrange(0, rc):
-        r = c.fetchone()
-        c2.execute("UPDATE histtoll SET xway = " + str(r[2]) + " WHERE carid = " + str(r[0]) + " AND day = " + str(r[1]))
-        db2.commit()
-        count += 1
+    r = c.fetchone()
+    c2.execute("UPDATE histtoll SET xway = " + str(r[2]) + " WHERE carid = " + str(r[0]) + " AND day = " + str(r[1]))
+    db2.commit()
+    count += 1
 
 print "Number of type 3 corrections: " + str(count)
 

@@ -1,8 +1,9 @@
 import sys, os, time, random
 import MySQLdb
 
-# test the self-join performance of mysql
-# this simply tests the ability to find re-entrant duplicates
+# Just a test file.
+# Test the self-join performance of mysql.
+# This simply tests the ability to find re-entrant duplicates.
 
 file = sys.argv[1]
 

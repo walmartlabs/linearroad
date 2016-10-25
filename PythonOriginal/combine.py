@@ -2,11 +2,18 @@ import sys, os, time, random
 import MySQLdb
 import subprocess
 
-# combine.py: now takes a single, combined, clean file and creates the tolls and re-entrant cars
-#  this script requires the original 'historical-tolls.pl' script and the 'p_duplicates.py' script
-#  it turns out mysql can run the original self-join query fairly quickly up to a large number of replacements, but
-#  50K took 355176 secs, so a non-db based recombination appears to still be better. 
+# combine.py: Now takes a single, combined, clean file and creates the tolls and re-entrant cars.
+# Requires MySQL and attendant drivers. Other databases can be used as well.
+# This script requires the original 'historical-tolls.pl' script and the 'p_duplicates.py' script.
+# It turns out mysql can run the original self-join query fairly quickly up to a large number of replacements, but
+# 50K took 355176 secs, so a non-db based recombination appears to still be better.
 # Usage: python combine.py <file> <output dir> <num xways>
+#
+# NOTE: Modifying the Python to NOT use a database would be faster. The Java classes to replicate as Python
+# scripts would be:
+# create_carsandtimes.java,
+# create_carstoreplace.java,
+# and combine_after_replace.java.
 
 file = sys.argv[1]  # not used, because
 datadir = sys.argv[2]  # no trailing '/'
@@ -20,12 +27,12 @@ overlap = 10
 maxCarId = None
 
 def generateRandomTable(maxCarId, overlap, db):
-        c = db.cursor()
-        for i in xrange(100, maxCarId):
-                if random.random() * 100 < overlap:  # the perl rand() function returns 0 < max; we use python vals from [0.0, 1.0)
-                        c.execute("INSERT INTO duplicatecars VALUES ("+str(i)+")")
-                        db.commit()
-        c.close()
+    c = db.cursor()
+    for i in xrange(100, maxCarId):
+        if random.random() * 100 < overlap:  # the perl rand() function returns 0 < max; we use python vals from [0.0, 1.0)
+            c.execute("INSERT INTO duplicatecars VALUES ("+str(i)+")")
+            db.commit()
+    c.close()
 
 # DROP ALL TABLES IF THEY EXIST
 print "Dropping tables..."
@@ -82,9 +89,9 @@ print "Creating carsandtimes..."
 c.execute("CREATE TABLE carsandtimes (carid int, entertime int, leavetime int, xway int, shard key(carid))") # MemSQL does NOT support CREATE TABLE ... AS SELECT
 c.execute("SELECT duplicatecars.carid, min(input.time) as entertime, max(input.time) as leavetime, xway FROM duplicatecars, input WHERE duplicatecars.carid=input.carid GROUP by duplicatecars.carid")
 for i in xrange(0, c.rowcount):
-        r = c.fetchone()
-        c2.execute("INSERT INTO carsandtimes VALUES ("+str(r[0])+","+str(r[1])+","+str(r[2])+","+str(r[3])+")")
-        db2.commit()
+    r = c.fetchone()
+    c2.execute("INSERT INTO carsandtimes VALUES ("+str(r[0])+","+str(r[1])+","+str(r[2])+","+str(r[3])+")")
+    db2.commit()
 c.execute("CREATE INDEX carsandtimescarid ON carsandtimes (carid)")
 c.execute("CREATE INDEX carsandtimescaridenter ON carsandtimes (carid, entertime)")
 c.execute("CREATE INDEX carsandtimescaridleave ON carsandtimes (carid, leavetime)")
@@ -106,10 +113,10 @@ c.execute("SELECT * FROM carstoreplace")
 num_recs = c.rowcount
 print "Number of cars to replace: " + str(num_recs)
 for i in xrange(0, num_recs):
-        r = c.fetchone()
-        print "Replacing record " + str(i) + " of " + str(num_recs) + ", " + str(r[1]) + " with " + str(r[0])
-        c2.execute("UPDATE input SET carid="+str(r[0])+" WHERE carid="+str(r[1]));
-        db2.commit()
+    r = c.fetchone()
+    print "Replacing record " + str(i) + " of " + str(num_recs) + ", " + str(r[1]) + " with " + str(r[0])
+    c2.execute("UPDATE input SET carid="+str(r[0])+" WHERE carid="+str(r[1]));
+    db2.commit()
 
 # Export final file
 print "Exporting final data file to " + datadir + "/my.data.out"

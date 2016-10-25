@@ -1,5 +1,8 @@
 #!/usr/bin/perl -w
 
+# This was the original file used to generate historical tolls from the maxcarid is a given data set.
+# Note that when they say $max_xway0 they really mean the max car, or vehicle id (vid).
+
 @ARGV == 3 or die("to generate toll-history, give me # of xways, maxcarid");
 
 my $xway = $ARGV[0];
